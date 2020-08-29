@@ -1,106 +1,96 @@
 #include <iostream>
 #include <string>
 #include <stack>
+#include <queue>
 #include <map>
 #include <cmath>
+#include "Term.h"
 
-double operate(double one, double two, char op) {
-    if (op == '+') {
-        return one + two;
-    } else if (op == '-') {
-        return one - two;
-    } else if (op == '*') {
-        return one * two;
-    } else if (op == '/') {
-        return one / two;
-    } else if (op == '^') {
-        return std::pow(one, two);
+#define cout std::cout
+#define stack std::stack
+#define queue std::queue
+#define cin std::cin
+#define string std::string
+#define endl std::endl
+
+Term* operate(Term* one, Term* two, const string* op) {
+    double first = one->getValue();
+    double second = two->getValue();
+    if (*op == "+") {
+        return new Term(first + second);
+    } else if (*op == "-") {
+        return new Term(first - second);
+    } else if (*op == "*") {
+        return new Term(first * second);
+    } else if (*op == "/") {
+        return new Term(first / second);
+    } else if (*op == "^") {
+        return new Term(std::pow(first, second));
     }
 
-    return -9999;
+    return new Term(-9999);
 }
 
-void sya(std::string* expression) {
+bool isOperator(string* s) {
+    const string operators[] = {"+", "-", "*", "/", "^"};
 
-    std::string operators = "+-/*";
-    std::map<char, int> opsLevels;
-    opsLevels.emplace('+', 2);
-    opsLevels.emplace('-', 2);
-    opsLevels.emplace('*', 3);
-    opsLevels.emplace('/', 3);
-    opsLevels.emplace('^', 4);
+    for (int i = 0; i < operators->length(); i++) {
+        // cout << operators[i] << "\t" << *s << endl;
 
-    std::stack<char> ops;
-    std::stack<double> output; // TODO change to a string stack so operators can be pushed to it
+        if (operators[i] == *s) return true;
+    }
+
+    return false;
+}
+
+// TODO change void* to string and fix it
+
+queue<void*> tokenize(string* expression) {
+    queue<void*> tokens;
 
     for (int i = 1, j = 0; i < expression->length(); i++) {
-        char c = expression->at(i);
-
-        // Make sure spaces don't get included in parsing
-        if (c == ' ') {
-            j++;
-            continue;
-        }
-
+        string c = expression->substr(i, i);
         if (i == expression->length() - 1) {
             // If at end of string, add last term
-            double term = std::stod(expression->substr(j, i + 1));
-            output.push(term);
-
-            // At the end of the expression, pop pop
-            while (!ops.empty()) {
-                // The first term popped is the second operand because of reverse polish notation
-                double two = output.top();
-                output.pop();
-                double one = output.top();
-                output.pop();
-
-                char tmp_op = ops.top();
-                ops.pop();
-
-                output.push(operate(one, two, tmp_op));
-            }
-        } else if (operators.find(c) != std::string::npos) {
-            double term = std::stod(expression->substr(j, i));
-            output.push(term);
-
-            int opLevel = opsLevels.find(c)->second;
-            if (ops.empty() || opsLevels.find(ops.top())->second < opLevel) {
-                // If the operator's precedence is higher than the top of the stack, add it to the stack
-                ops.push(c);
-            } else {
-                // If the operator's precedence is lower than the top of the stack, pop and operate until it's not
-                while (!ops.empty() && opsLevels.find(ops.top())->second >= opLevel) {
-                    double one = output.top();
-                    output.pop();
-                    double two = output.top();
-                    output.pop();
-
-                    char tmp_op = ops.top();
-                    ops.pop();
-
-                    output.push(operate(one, two, tmp_op));
-                }
-
-                ops.push(c);
-            }
-
-            j = i + 1;
+            tokens.push(new Term(std::stod(expression->substr(j, i + 1))));
+        } else if (isOperator(&c)) {
+            tokens.push(new Term(std::stod(expression->substr(j, i))));
+            tokens.push(new string(c)); // Make a copy of the string so that the memory addresses don't get all wacky
         }
     }
 
-    while (!output.empty()) {
-        std::cout << output.top() << std::endl;
-        output.pop();
+    return tokens;
+}
+
+void sya(string* expression) {
+
+    std::map<string, int> opsLevels;
+    opsLevels.emplace("+", 2);
+    opsLevels.emplace("-", 2);
+    opsLevels.emplace("*", 3);
+    opsLevels.emplace("/", 3);
+    opsLevels.emplace("^", 4);
+
+    stack<string> ops;
+    stack<Term*> output;
+
+    queue<void*> tokens = tokenize(expression);
+    cout << (tokens.empty()) << endl;
+    while (!tokens.empty()) {
+        cout << tokens.front() << endl;
+        tokens.pop();
     }
+
+    // cout << "Answer: " << output.top()->getValue() << endl;
 }
 
 int main() {
     // Get input expression from user
-    std::cout << "Enter an expression" << std::endl;
-    std::string expression;
-    std::getline(std::cin, expression);
-    std::cout << expression << std::endl;
+    cout << "Enter an expression" << endl;
+    string expression;
+    std::getline(cin, expression);
+    // TODO remove spaces from expression
+    cout << expression << endl;
 
     sya(&expression);
 
