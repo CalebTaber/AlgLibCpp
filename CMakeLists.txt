@@ -3,4 +3,4 @@ project(AlgLib)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(AlgLib main.cpp)
+add_executable(AlgLib main.cpp Term.cpp Term.h)

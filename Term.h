@@ -7,9 +7,9 @@ private:
     double value;
 
 public:
-    Term(double val);
+    Term(double value);
     double getValue() { return value; }
-    void setValue(double value) { this->value = value; }
+    void setValue(const double val) { value = val; }
 };
 
 
