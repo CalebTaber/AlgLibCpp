@@ -21,6 +21,15 @@ struct token {
     string op;
 };
 
+token* new_token(const bool is_term, Term* term, string op) {
+    token* t = (token*) malloc(sizeof(token));
+    t->is_term = is_term;
+    t->term = term;
+    if (!op.empty()) t->op = op;
+
+    return t;
+}
+
 void print_token(const token* t) {
     if (t->is_term) {
         cout << t->term->getValue() << endl;
@@ -60,16 +69,6 @@ bool isOperator(const string* s) {
     return false;
 }
 
-void print_tokens(queue<token*> tokens) {
-    while (!tokens.empty()) {
-        if (tokens.front()->is_term) cout << tokens.front()->term->getValue() << " ";
-        else cout << tokens.front()->op << " ";
-        tokens.pop();
-    }
-
-    cout << endl;
-}
-
 void print_tokens(stack<token*> tokens) {
     while (!tokens.empty()) {
         cout << tokens.top()->op << " ";
@@ -83,6 +82,7 @@ void sya(queue<token> tokens) {
     cout << endl;
 
     // TODO add parenthesis functionality
+    // TODO fix 6+9-12/8 returns 6.75, but the correct answer is 13.5
     std::map<string, int> precedence;
     precedence["+"] = 2;
     precedence["-"] = 2;
@@ -90,13 +90,13 @@ void sya(queue<token> tokens) {
     precedence["/"] = 3;
     precedence["^"] = 4;
 
-    queue<token*> output;
+    stack<token*> output;
     stack<token*> operators;
 
     while (!tokens.empty()) {
         if (tokens.front().is_term) {
             output.push(&tokens.front()); // If term, add to queue
-            // cout << "push " << tokens.front().term->getValue() << endl;
+            cout << "push out " << tokens.front().term->getValue() << endl;
             tokens.pop();
         } else {
             string op = tokens.front().op;
@@ -104,27 +104,31 @@ void sya(queue<token> tokens) {
 
             // If stack is empty or the top operator has lower precedence, push the op
             if (operators.empty() || precedence[top_op] < precedence[op]) {
-                // cout << "push " << op << endl;
+                cout << "push op " << tokens.front().op << endl;
                 operators.push(&tokens.front());
             } else {
                 // Pop operators until an equal or lower precedence operator is encountered
                 print_tokens(output);
                 print_tokens(operators);
                 while (precedence[top_op] >= precedence[op]) {
-                    Term* one = output.front()->term;
+                    Term* two = output.top()->term;
+                    cout << "pop out " << two->getValue() << endl;
                     output.pop();
-                    Term* two = output.front()->term;
+                    Term* one = output.top()->term;
+                    cout << "pop out " << one->getValue() << endl;
                     output.pop();
 
-                    token result = {true, operate(one, two, &operators.top()->op), ""};
-                    output.push(&result);
+                    token* result = new_token(true, operate(one, two, &operators.top()->op), "");
+                    output.push(result);
+                    cout << "push out " << result->term->getValue() << endl;
 
+                    cout << "pop op " << operators.top()->op << endl;
                     operators.pop();
                     top_op = (!operators.empty()) ? operators.top()->op : "";
                 }
 
                 operators.push(&tokens.front());
-                // cout << "push " << tokens.front().op << endl;
+                cout << "push op " << operators.top()->op << endl;
             }
 
             tokens.pop();
@@ -133,21 +137,26 @@ void sya(queue<token> tokens) {
 
     // Pop all of the operators and operate
     while (!operators.empty()) {
-        Term* one = output.front()->term;
+        Term* two = output.top()->term;
+        cout << "pop out2 " << two->getValue() << endl;
         output.pop();
-        Term* two = output.front()->term;
+        Term* one = output.top()->term;
+        cout << "pop out2 " << one->getValue() << endl;
         output.pop();
 
-        token result = {true, operate(one, two, &operators.top()->op), ""};
-        output.push(&result);
+        string empty = "";
+        token* result = new_token(true, operate(one, two, &operators.top()->op), "");
+        cout << "push out2 " << result->term->getValue() << endl;
+        output.push(result);
 
+        cout << "pop op2 " << operators.top()->op << endl;
         operators.pop();
     }
 
     cout << endl;
 
     while (!output.empty()) {
-        print_token(output.front());
+        print_token(output.top());
         output.pop();
     }
 
