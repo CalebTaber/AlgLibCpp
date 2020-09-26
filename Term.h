@@ -8,6 +8,7 @@ private:
 
 public:
     Term(double value);
+    ~Term();
     double getValue() { return value; }
     void setValue(const double val) { value = val; }
 };

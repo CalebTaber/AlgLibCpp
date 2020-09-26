@@ -45,7 +45,7 @@ Term *operate(Term *one, Term *two, const string *op) {
         return new Term(std::pow(first, second));
     }
 
-    return new Term(-9999);
+    return new Term(1337);
 }
 
 void print_tokens(const vector<string> *tokens) {
@@ -78,6 +78,8 @@ Term *evaluate(queue<string> *tokens) {
 
             // Push the result
             output.push(operate(one, two, &front));
+            delete one;
+            delete two;
         } else output.push(new Term(std::stof(front))); // If the token is an operand
 
         tokens->pop();
@@ -165,9 +167,7 @@ int main() {
     // Evaluate and get result
     Term *result = evaluate(&postfixed);
     cout << result->getValue() << endl;
-
-    // Apply the shunting yard algorithm to the token vector
-    // evaluate(&tokens);
+    delete result;
 
     return 0;
 }
