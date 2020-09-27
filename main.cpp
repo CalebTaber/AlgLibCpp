@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <stack>
+#include <cctype>
 #include <queue>
 #include <map>
 #include <cmath>
@@ -80,12 +81,62 @@ Term *evaluate(queue<string> *tokens) {
             output.push(operate(one, two, &front));
             delete one;
             delete two;
-        } else output.push(new Term(std::stof(front))); // If the token is an operand
+        } else {
+            // If the token is an operand
+            string number;
+            if (front[0] == '`') front.replace(0, 1, "-"); // Check for a negation symbol
+            output.push(new Term(std::stod(front)));
+        }
 
         tokens->pop();
     }
 
     return output.top();
+}
+
+string preprocess(const string* input) {
+    string processed;
+
+    for (int j = 0, i = 0; i < input->length(); i++) {
+        char c = input->at(i);
+
+        // If at the end of the input string
+        if (i == input->length() - 1) {
+            processed.append(input->substr(j, (i - j + 1)));
+            continue;
+        }
+
+        /** ---------------Processing-------------- **/
+
+        if (c == ' ') { // Eliminate spaces
+            processed.append(input->substr(j, (i - j)));
+            j = i + 1;
+            continue;
+        }
+        else if (c == '-') {
+            // If the '-' is negating a term, not indicating subtraction
+            // TODO this may break parsing when variables are introduced to expressions
+            if (i == 0 || (!isdigit(input->at(i - 1)) && !isalpha(input->at(i - 1)))) {
+                processed.append(input->substr(j, (i - j)));
+                processed.append("`");
+                j = i + 1;
+                continue;
+            }
+        }
+        else if (c == '(') {
+            string b = input->substr(i - 1,1);
+
+            if (i == 0) continue;
+            else if (!is_Operator(&b) && b != "`") {
+                processed.append(input->substr(j, (i - j)));
+                processed.append("*");
+                j = i;
+                continue;
+            }
+        }
+    }
+
+    return processed;
 }
 
 vector<string> tokenize(const string *expression) {
@@ -110,7 +161,7 @@ vector<string> tokenize(const string *expression) {
     return tokens;
 }
 
-queue<string> postfixify(vector<string> *tokens) {
+queue<string> infix_to_postfix(vector<string> *tokens) {
     queue<string> postfixed;
     stack<string> operators;
 
@@ -156,13 +207,15 @@ int main() {
     std::getline(cin, expression);
     cout << expression << endl;
 
-    vector<string> tokens = tokenize(&expression);
-    print_tokens(&tokens);
+    string preprocessed = preprocess(&expression);
+    cout << "Processed input: " << preprocessed << endl;
+    vector<string> tokens = tokenize(&preprocessed);
+    // print_tokens(&tokens);
 
     cout << endl;
 
     // Convert from infix to postfix notation
-    queue<string> postfixed = postfixify(&tokens);
+    queue<string> postfixed = infix_to_postfix(&tokens);
 
     // Evaluate and get result
     Term *result = evaluate(&postfixed);
