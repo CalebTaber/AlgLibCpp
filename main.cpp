@@ -28,25 +28,53 @@ const map<char, int> g_precedence = {
 };
 const string g_OPERATORS = "+-*/^()";
 
+map<char, double> add_variables(map<char, double> *one, map<char, double> *two) {
+    map<char, double> new_vars;
+
+    map<char, double>::iterator iter = (one->size() >= two->size()) ? one->begin() : two->begin();
+
+    if (one->size() >= two->size()) {
+        while (iter != one->end()) {
+            map<char, double>::iterator find_in_two = two->find(iter->first);
+            if (find_in_two != two->end()) {
+                new_vars.emplace(iter->first, (iter->second + find_in_two->second));
+            } else new_vars.emplace(iter->first, iter->second);
+        }
+    } else {
+        while (iter != two->end()) {
+            map<char, double>::iterator find_in_one = one->find(iter->first);
+            if (find_in_one != two->end()) {
+                new_vars.emplace(iter->first, (iter->second + find_in_one->second));
+            } else new_vars.emplace(iter->first, iter->second);
+        }
+    }
+
+    return new_vars;
+}
+
 Term *operate(Term *one, Term *two, const string *op) {
-    double first = one->getValue();
-    double second = two->getValue();
+    double first = one->get_value();
+    double second = two->get_value();
+
+    map<char, double> one_vars = one->get_variables();
+    map<char, double> two_vars = two->get_variables();
+    map<char, double> variables = add_variables(&one_vars, &two_vars);
 
     cout << first << " " + *op + " " << second << endl;
 
     if (*op == "+") {
-        return new Term(first + second);
+        return new Term(first + second, &variables);
     } else if (*op == "-") {
-        return new Term(first - second);
+        return new Term(first - second, &variables);
     } else if (*op == "*") {
-        return new Term(first * second);
+        return new Term(first * second, &variables);
     } else if (*op == "/") {
-        return new Term(first / second);
+        return new Term(first / second, &variables);
     } else if (*op == "^") {
-        return new Term(std::pow(first, second));
+        return new Term(std::pow(first, second), &variables);
     }
 
-    return new Term(1337);
+    return new Term(1337, &variables);
 }
 
 void print_tokens(const vector<string> *tokens) {
@@ -61,6 +89,47 @@ bool is_Operator(const string *s) {
 
 bool is_Operator(const char *c) {
     return g_OPERATORS.find(*c) != string::npos;
+}
+
+Term* parse_term(const string *s) {
+    Term* term;
+
+    map<char, double> variables;
+
+    bool parse_vars = false;
+    int partition = -1;
+    for (int i = 0, j = 0; i < s->length(); i++) {
+        char c = s->at(i);
+
+        // If at the end of the term
+        if (i == s->length() - 1) {
+            if (isalpha(c)) {
+                j = i + 1;
+                variables.emplace(c, 1);
+            }
+
+            if (parse_vars) {
+                // Add the last variable to the map
+                if (variables.find(j) != variables.end()) variables.emplace(s->at(j), std::stod(s->substr(j + 1, (i - j + 1))));
+                term = new Term(std::stod(s->substr(0, partition)), &variables);
+            } else term = new Term(std::stod(*s), &variables);
+
+        }
+
+        // If at the beginning of the variables
+        if (!parse_vars && isalpha(c)) {
+            j = i;
+            partition = j;
+            parse_vars = true;
+            continue;
+        }
+
+        if (parse_vars) {
+            if (isalpha(c)) variables.emplace(s->at(j), std::stod(s->substr(j + 1, (i - j))));
+        }
+    }
+
+    return term;
 }
 
 Term *evaluate(queue<string> *tokens) {
@@ -85,7 +154,7 @@ Term *evaluate(queue<string> *tokens) {
             // If the token is an operand
             string number;
             if (front[0] == '`') front.replace(0, 1, "-"); // Check for a negation symbol
-            output.push(new Term(std::stod(front)));
+            output.push(parse_term(&front));
         }
 
         tokens->pop();
@@ -201,7 +270,6 @@ queue<string> infix_to_postfix(vector<string> *tokens) {
 }
 
 int main() {
-    // Get input expression from user
     cout << "Enter an expression" << endl;
     string expression;
     std::getline(cin, expression);
@@ -219,7 +287,7 @@ int main() {
 
     // Evaluate and get result
     Term *result = evaluate(&postfixed);
-    cout << result->getValue() << endl;
+    cout << result->get_value() << endl;
     delete result;
 
     return 0;

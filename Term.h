@@ -1,16 +1,19 @@
 #ifndef ALGLIB_TERM_H
 #define ALGLIB_TERM_H
 
+#include <map>
 
 class Term {
 private:
-    double value;
+    double coefficient;
+    std::map<char, double> variables;
 
 public:
-    Term(double value);
+    Term(double value, std::map<char, double> *variables);
     ~Term();
-    double getValue() { return value; }
-    void setValue(const double val) { value = val; }
+    double get_value() { return coefficient; }
+    std::map<char, double> get_variables() { return variables; }
+    void setValue(const double val) { coefficient = val; }
 };
 
 
