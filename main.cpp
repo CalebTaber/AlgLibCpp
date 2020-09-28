@@ -39,6 +39,8 @@ map<char, double> add_variables(map<char, double> *one, map<char, double> *two) 
             if (find_in_two != two->end()) {
                 new_vars.emplace(iter->first, (iter->second + find_in_two->second));
             } else new_vars.emplace(iter->first, iter->second);
+
+            iter++;
         }
     } else {
         while (iter != two->end()) {
@@ -46,6 +48,7 @@ map<char, double> add_variables(map<char, double> *one, map<char, double> *two) 
             if (find_in_one != two->end()) {
                 new_vars.emplace(iter->first, (iter->second + find_in_one->second));
             } else new_vars.emplace(iter->first, iter->second);
+            iter++;
         }
     }
 
@@ -145,6 +148,10 @@ Term *evaluate(queue<string> *tokens) {
 
             Term *one = output.top();
             output.pop();
+
+            // TODO implement an Expression struct/class
+            // Be able to return an Expression from this function. An Expression
+            // is a list of Terms
 
             // Push the result
             output.push(operate(one, two, &front));
