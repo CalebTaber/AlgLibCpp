@@ -27,8 +27,13 @@ const map<char, int> g_precedence = {
         {')', 4}
 };
 const string g_OPERATORS = "+-*/^()";
+const char g_TERM[] = "[0-9]*[a-z]*[^]";
 
-map<char, double> add_variables(map<char, double> *one, map<char, double> *two) {
+bool atEndOfString(int i, const string* s) {
+    return (i == s->length() - 1);
+}
+
+map<char, double> addVariables(map<char, double> *one, map<char, double> *two) {
     map<char, double> new_vars;
 
     map<char, double>::iterator iter = (one->size() >= two->size()) ? one->begin() : two->begin();
@@ -55,13 +60,14 @@ map<char, double> add_variables(map<char, double> *one, map<char, double> *two) 
     return new_vars;
 }
 
+// TODO Break up into multiple separate functions
 Term *operate(Term *one, Term *two, const string *op) {
     double first = one->get_value();
     double second = two->get_value();
 
     map<char, double> one_vars = one->get_variables();
     map<char, double> two_vars = two->get_variables();
-    map<char, double> variables = add_variables(&one_vars, &two_vars);
+    map<char, double> variables = addVariables(&one_vars, &two_vars);
 
     cout << first << " " + *op + " " << second << endl;
 
@@ -80,18 +86,18 @@ Term *operate(Term *one, Term *two, const string *op) {
     return new Term(1337, &variables);
 }
 
-void print_tokens(const vector<string> *tokens) {
+void printTokens(const vector<string> *tokens) {
     for (string s : *tokens) {
         cout << s << endl;
     }
 }
 
-bool is_Operator(const string *s) {
-    return g_OPERATORS.find(s->at(0)) != string::npos;
+bool isOperator(const char c) {
+    return g_OPERATORS.find(c) != string::npos;
 }
 
-bool is_Operator(const char *c) {
-    return g_OPERATORS.find(*c) != string::npos;
+bool isOperator(const string *s) {
+    return isOperator(s->at(0));
 }
 
 Term* parse_term(const string *s) {
@@ -116,7 +122,6 @@ Term* parse_term(const string *s) {
                 if (variables.find(j) != variables.end()) variables.emplace(s->at(j), std::stod(s->substr(j + 1, (i - j + 1))));
                 term = new Term(std::stod(s->substr(0, partition)), &variables);
             } else term = new Term(std::stod(*s), &variables);
-
         }
 
         // If at the beginning of the variables
@@ -140,7 +145,7 @@ Term *evaluate(queue<string> *tokens) {
 
     while (!tokens->empty()) {
         string front = tokens->front();
-        if (is_Operator(&front)) { // If the token is an operator
+        if (isOperator(&front)) {
             // Pop operands and operate
             // Note: the operands are popped in reverse order because they're in a stack
             Term *two = output.top();
@@ -154,6 +159,7 @@ Term *evaluate(queue<string> *tokens) {
             // is a list of Terms
 
             // Push the result
+            // TODO add operable() call to check if the operation can go through
             output.push(operate(one, two, &front));
             delete one;
             delete two;
@@ -177,7 +183,7 @@ string preprocess(const string* input) {
         char c = input->at(i);
 
         // If at the end of the input string
-        if (i == input->length() - 1) {
+        if (atEndOfString(i, input)) {
             processed.append(input->substr(j, (i - j + 1)));
             continue;
         }
@@ -203,7 +209,7 @@ string preprocess(const string* input) {
             string b = input->substr(i - 1,1);
 
             if (i == 0) continue;
-            else if (!is_Operator(&b) && b != "`") {
+            else if (!isOperator(&b) && b != "`") {
                 processed.append(input->substr(j, (i - j)));
                 processed.append("*");
                 j = i;
@@ -215,19 +221,19 @@ string preprocess(const string* input) {
     return processed;
 }
 
-vector<string> tokenize(const string *expression) {
+vector<string> tokenizeExpression(const string *expression) {
     vector<string> tokens;
 
     for (int i = 1, j = 0; i < expression->length(); i++) {
         const char c = expression->at(i);
 
-        if (i == expression->length() - 1) { // If at end of the expression
-            if (is_Operator(&c)) {
+        if (atEndOfString(i, expression)) { // If at end of the expression
+            if (isOperator(c)) {
                 tokens.push_back(expression->substr(j, (i - j))); // Add operand
                 tokens.push_back(expression->substr(i, 1)); // Add operator that's at the end of the expression
             }
             else tokens.push_back(expression->substr(j, (expression->length() - j)));
-        } else if (is_Operator(&c)) { // If c is an operator
+        } else if (isOperator(c)) { // If c is an operator
             if (j != i) tokens.push_back(expression->substr(j, (i - j)));
             tokens.push_back(expression->substr(i, 1));
             j = i + 1;
@@ -237,12 +243,16 @@ vector<string> tokenize(const string *expression) {
     return tokens;
 }
 
-queue<string> infix_to_postfix(vector<string> *tokens) {
+/**
+ * Applies the Shunting-Yard Algorithm to convert a vector
+ * of tokens in infix order into a queue in postfix order
+ */
+queue<string> infixToPostfix(vector<string> *tokens) {
     queue<string> postfixed;
     stack<string> operators;
 
     for (string s : *tokens) {
-        if (is_Operator(&s)) { // If the token is an operator
+        if (isOperator(&s)) { // If the token is an operator
             int top_precedence = (operators.empty()) ? -1 : g_precedence.at(operators.top().at(0));
             int this_precedence = g_precedence.at(s.at(0));
 
@@ -254,7 +264,8 @@ queue<string> infix_to_postfix(vector<string> *tokens) {
 
                 operators.pop(); // Pop the '(' from the stack
             }
-            else if ((!operators.empty() && operators.top() == "(") || top_precedence < this_precedence) operators.push(s);
+            else if (!operators.empty() && operators.top() == "(") operators.push(s);
+            else if (top_precedence < this_precedence) operators.push(s);
             else {
                 while (!operators.empty() && top_precedence > this_precedence) {
                     postfixed.push(operators.top());
@@ -265,7 +276,8 @@ queue<string> infix_to_postfix(vector<string> *tokens) {
 
                 operators.push(s);
             }
-        } else postfixed.push(s); // If the token is an operand
+        }
+        else postfixed.push(s); // If the token is an operand
     }
 
     while (!operators.empty()) {
@@ -284,13 +296,13 @@ int main() {
 
     string preprocessed = preprocess(&expression);
     cout << "Processed input: " << preprocessed << endl;
-    vector<string> tokens = tokenize(&preprocessed);
+    vector<string> tokens = tokenizeExpression(&preprocessed);
     // print_tokens(&tokens);
 
     cout << endl;
 
     // Convert from infix to postfix notation
-    queue<string> postfixed = infix_to_postfix(&tokens);
+    queue<string> postfixed = infixToPostfix(&tokens);
 
     // Evaluate and get result
     Term *result = evaluate(&postfixed);
