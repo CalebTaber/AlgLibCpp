@@ -60,6 +60,56 @@ map<char, double> addVariables(map<char, double> *one, map<char, double> *two) {
     return new_vars;
 }
 
+bool canAdd(Term* one, Term* two) {
+    map<char, double> oneVars = one->get_variables();
+    map<char, double> twoVars = two->get_variables();
+
+    if (oneVars.size() != twoVars.size()) return false;
+
+
+    // TODO need to check that exponents are equal
+    for (auto & iter : oneVars) {
+        if (twoVars.find(iter.first) == twoVars.end()) return false;
+    }
+
+    for (auto & iter : twoVars) {
+        if (oneVars.find(iter.first) == oneVars.end()) return false;
+    }
+
+    return true;
+}
+
+bool canMultiply(Term* one, Term* two) {
+    return false;
+}
+
+bool operable(Term* one, Term* two, const string* op) {
+    if (*op == "+" || *op == "-") return canAdd(one, two);
+    else if (*op == "*" || *op == "/") return canMultiply(one, two);
+
+    return false;
+}
+
+Term* add(Term* one, Term* two) {
+
+}
+
+Term* subtract(Term* one, Term* two) {
+
+}
+
+Term* multiply(Term* one, Term* two) {
+
+}
+
+Term* divide(Term* one, Term* two) {
+
+}
+
+Term* pow(Term* one, Term* two) {
+
+}
+
 // TODO Break up into multiple separate functions
 Term *operate(Term *one, Term *two, const string *op) {
     double first = one->get_value();
@@ -96,6 +146,7 @@ bool isOperator(const char c) {
     return g_OPERATORS.find(c) != string::npos;
 }
 
+// TODO get rid of this function VVV
 bool isOperator(const string *s) {
     return isOperator(s->at(0));
 }
@@ -141,7 +192,7 @@ Term* parse_term(const string *s) {
 }
 
 Term *evaluate(queue<string> *tokens) {
-    stack<Term *> output;
+    stack<Term*> output;
 
     while (!tokens->empty()) {
         string front = tokens->front();
@@ -289,6 +340,7 @@ queue<string> infixToPostfix(vector<string> *tokens) {
 }
 
 int main() {
+    /*
     cout << "Enter an expression" << endl;
     string expression;
     std::getline(cin, expression);
@@ -308,6 +360,7 @@ int main() {
     Term *result = evaluate(&postfixed);
     cout << result->get_value() << endl;
     delete result;
+     */
 
     return 0;
 }
