@@ -93,7 +93,7 @@ Term* divide(Term* one, Term* two) {
  * @return Term one raised to the value of Term two
  */
 Term* pow(Term* one, Term* two) {
-    // TODO
+    // TODO implement pow()
     return new Term(1337, nullptr);
 }
 
