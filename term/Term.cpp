@@ -72,7 +72,7 @@ Term* Term::parseTerm(const string *s) {
 
     map<char, double> variables;
 
-    bool parse_vars = false;
+    bool parsingVars = false;
     int partition = -1;
     for (int i = 0, j = 0; i < s->length(); i++) {
         char c = s->at(i);
@@ -84,23 +84,26 @@ Term* Term::parseTerm(const string *s) {
                 variables.emplace(c, 1);
             }
 
-            if (parse_vars) {
+            if (parsingVars) {
                 // Add the last variable to the map
-                if (variables.find(j) != variables.end()) variables.emplace(s->at(j), std::stod(s->substr(j + 1, (i - j + 1))));
+                variables.emplace(s->at(j), std::stod(s->substr(j + 3, (i - (j + 3)))));
                 term = new Term(std::stod(s->substr(0, partition)), &variables);
             } else term = new Term(std::stod(*s), &variables);
         }
 
         // If at the beginning of the variables
-        if (!parse_vars && isalpha(c)) {
+        if (!parsingVars && isalpha(c)) {
             j = i;
             partition = j;
-            parse_vars = true;
+            parsingVars = true;
             continue;
         }
 
-        if (parse_vars) {
-            if (isalpha(c)) variables.emplace(s->at(j), std::stod(s->substr(j + 1, (i - j))));
+        // If an additional variable is encountered
+        if (parsingVars) {
+            // j is the index of the current variable, so add 3 to account for the caret and open parenthesis
+            // i is the index of the next variable, so subtract 1 to get the index of the closing parenthesis
+            if (isalpha(c)) variables.emplace(s->at(j), std::stod(s->substr(j + 3, (i - j - 1))));
         }
     }
 

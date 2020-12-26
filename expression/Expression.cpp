@@ -47,6 +47,7 @@ string preprocess(const string* input) {
             // TODO this may break parsing when variables are introduced to expressions
             if (i == 0 || (!isdigit(input->at(i - 1)) && !isalpha(input->at(i - 1)))) {
                 processed.append(input->substr(j, (i - j)));
+                processed.append("+");
                 processed.append("`");
                 j = i + 1;
                 continue;
@@ -71,19 +72,32 @@ string preprocess(const string* input) {
 vector<string> tokenizeExpression(const string *expression) {
     vector<string> tokens;
 
+    // When parsing a term with exponentiated variables, this flag
+    // prevents the carets from being parsed independently of the rest
+    // of the term
+    bool parsingTerm = false;
+
     for (int i = 1, j = 0; i < expression->length(); i++) {
         const char c = expression->at(i);
 
+        if (isalpha(c)) parsingTerm = true;
+
         if (atEndOfString(i, expression)) { // If at end of the expression
             if (isOperator(c)) {
-                tokens.push_back(expression->substr(j, (i - j))); // Add operand
-                tokens.push_back(expression->substr(i, 1)); // Add operator that's at the end of the expression
+                if (parsingTerm && c == ')') tokens.push_back(expression->substr(j, (i - j) + 1));
+                else {
+                    tokens.push_back(expression->substr(j, (i - j))); // Add operand
+                    tokens.push_back(expression->substr(i, 1)); // Add operator that's at the end of the expression
+                }
             }
             else tokens.push_back(expression->substr(j, (expression->length() - j)));
         } else if (isOperator(c)) { // If c is an operator
-            if (j != i) tokens.push_back(expression->substr(j, (i - j)));
-            tokens.push_back(expression->substr(i, 1));
-            j = i + 1;
+            if (parsingTerm && isOperator(c) && expression->at(i-1) == ')') parsingTerm = false;
+            if (!parsingTerm) {
+                if (j != i) tokens.push_back(expression->substr(j, (i - j)));
+                tokens.push_back(expression->substr(i, 1));
+                j = i + 1;
+            }
         }
     }
 
@@ -140,8 +154,21 @@ Expression::Expression(const string input) {
     cout << "Processed input: " << preprocessed << endl;
     vector<string> tokens = tokenizeExpression(&preprocessed);
 
+    /*
+    for (auto & t : tokens) {
+        cout << t << endl;
+    }
+    */
+
     // Convert from infix to postfix notation
     queue<string> postfixed = infixToPostfix(&tokens);
+
+    /*
+    while (!postfixed.empty()) {
+        cout << postfixed.front() << endl;
+        postfixed.pop();
+    }
+    */
 
     evaluate(&postfixed);
 }
@@ -151,10 +178,21 @@ Expression::Expression(vector<Term*> *input) {
     simplify();
 }
 
+Expression::~Expression() {
+    for (auto t : terms) {
+        delete t;
+    }
+}
+
 void Expression::simplify() {
     // TODO
 }
 
+/**
+ * Evaluates the given queue of tokens as an expression.
+ * Note: The tokens must be in postfix order, generally achieved
+ * by calling the function infixToPostfix() before evaluate()
+ */
 void Expression::evaluate(queue<string> *tokens) {
     stack<Term*> output;
 

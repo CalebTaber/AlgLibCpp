@@ -26,6 +26,7 @@ bool operable(Term* one, Term* two, const string* op) {
     return false;
 }
 
+// TODO rename
 map<char, double> operateOnVarsMaps(Term *one, Term *two, bool add) {
     map<char, double> result = one->copyVariables();
 

@@ -21,6 +21,8 @@ public:
 
     Expression(std::vector<Term*> *termQueue);
 
+    ~Expression();
+
     std::string toString();
 
     void print();
