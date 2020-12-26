@@ -1,22 +1,27 @@
+#include <stack>
 #include <iostream>
 
-#include "Processing.h"
-#include "Utils.h"
+#include "Expression.h"
+#include "../Utils.h"
+#include "../math/Arithmetic.h"
 
-#define map std::map
-#define string std::string
 #define vector std::vector
-#define queue std::queue
+#define string std::string
 #define stack std::stack
+#define queue std::queue
 
 #define cout std::cout
 #define endl std::endl
 
-void printTokens(const vector<string> *tokens) {
-    for (string s : *tokens) {
-        cout << s << endl;
-    }
-}
+const std::map<char, int> g_precedence = {
+        {'+', 1},
+        {'-', 1},
+        {'*', 2},
+        {'/', 2},
+        {'^', 3},
+        {'(', 4},
+        {')', 4}
+};
 
 string preprocess(const string* input) {
     string processed;
@@ -128,4 +133,82 @@ queue<string> infixToPostfix(vector<string> *tokens) {
     }
 
     return postfixed;
+}
+
+Expression::Expression(const string input) {
+    string preprocessed = preprocess(&input);
+    cout << "Processed input: " << preprocessed << endl;
+    vector<string> tokens = tokenizeExpression(&preprocessed);
+
+    // Convert from infix to postfix notation
+    queue<string> postfixed = infixToPostfix(&tokens);
+
+    evaluate(&postfixed);
+}
+
+Expression::Expression(vector<Term*> *input) {
+    terms = *input;
+    simplify();
+}
+
+void Expression::simplify() {
+    // TODO
+}
+
+void Expression::evaluate(queue<string> *tokens) {
+    stack<Term*> output;
+
+    while (!tokens->empty()) {
+        string front = tokens->front();
+        if (isOperator(&front)) {
+            // Pop operands and operate
+            // Note: the operands are popped in reverse order because they're in a stack
+            Term* two = output.top();
+            cout << two->toString() << endl;
+            output.pop();
+
+            Term* one = output.top();
+            cout << one->toString() << endl;
+            output.pop();
+
+            // Push the result
+            if (operable(one, two, &front)) {
+                output.push(operate(one, two, &front));
+                delete one;
+                delete two;
+            }
+            else {
+                output.push(one);
+                output.push(two);
+            }
+        } else {
+            // If the token is an operand
+            string number;
+            if (front[0] == '`') front.replace(0, 1, "-"); // Check for a negation symbol
+            output.push(Term::parseTerm(&front));
+        }
+
+        tokens->pop();
+    }
+
+    while (!output.empty()) {
+        terms.push_back(output.top());
+        output.pop();
+    }
+
+    simplify();
+}
+
+string Expression::toString() {
+    string stringified;
+
+    for (auto term : terms) {
+        stringified += term->toString() + " ";
+    }
+
+    return stringified;
+}
+
+void Expression::print() {
+    cout << toString() << endl;
 }

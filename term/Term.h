@@ -13,7 +13,7 @@ private:
 public:
     Term(double value, std::map<char, double> *variables);
 
-    double getValue() { return coefficient; }
+    double getCoefficient() { return coefficient; }
 
     std::map<char, double> getVariables() { return variables; }
 

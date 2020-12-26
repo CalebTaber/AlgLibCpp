@@ -21,7 +21,7 @@ bool operable(Term* one, Term* two, const string* op) {
 
     if (*op == "+" || *op == "-") return canAdd(one, two);
     else if (*op == "*") return true;
-    else if (*op == "/") return (two->getValue() != 0);
+    else if (*op == "/") return (two->getCoefficient() != 0);
 
     return false;
 }
@@ -54,7 +54,7 @@ map<char, double> operateOnVarsMaps(Term *one, Term *two, bool add) {
  */
 Term* add(Term* one, Term* two) {
     map<char, double> varsCopy = one->copyVariables();
-    return new Term((one->getValue() + two->getValue()), &varsCopy);
+    return new Term((one->getCoefficient() + two->getCoefficient()), &varsCopy);
 }
 
 /**
@@ -64,7 +64,7 @@ Term* add(Term* one, Term* two) {
  */
 Term* subtract(Term* one, Term* two) {
     map<char, double> varsCopy = one->copyVariables();
-    return new Term((one->getValue() - two->getValue()), &varsCopy);
+    return new Term((one->getCoefficient() - two->getCoefficient()), &varsCopy);
 }
 
 /**
@@ -74,7 +74,7 @@ Term* subtract(Term* one, Term* two) {
  */
 Term* multiply(Term* one, Term* two) {
     map<char, double> addedVars = operateOnVarsMaps(one, two, true);
-    return new Term((one->getValue() * two->getValue()), &addedVars);
+    return new Term((one->getCoefficient() * two->getCoefficient()), &addedVars);
 }
 
 /**
@@ -84,7 +84,7 @@ Term* multiply(Term* one, Term* two) {
  */
 Term* divide(Term* one, Term* two) {
     map<char, double> subtractedVars = operateOnVarsMaps(one, two, false);
-    return new Term((one->getValue() * two->getValue()), &subtractedVars);
+    return new Term((one->getCoefficient() / two->getCoefficient()), &subtractedVars);
 }
 
 /**

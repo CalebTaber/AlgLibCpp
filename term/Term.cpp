@@ -19,6 +19,7 @@ string Term::toString() {
 
 string Term::varsToString() {
     string varString;
+    if (variables.empty()) return varString;
 
     for (auto & variable : variables) {
         varString += variable.first;
@@ -53,7 +54,7 @@ bool Term::varsEqual(Term* t) {
 }
 
 bool Term::equals(Term* t) {
-    return (coefficient == t->getValue() && varsEqual(t));
+    return (coefficient == t->getCoefficient() && varsEqual(t));
 }
 
 map<char, double> Term::copyVariables() {

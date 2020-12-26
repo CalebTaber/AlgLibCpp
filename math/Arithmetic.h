@@ -4,7 +4,7 @@
 #include <string>
 #include <map>
 
-#include "Term.h"
+#include "../term/Term.h"
 
 bool canAdd(Term* one, Term* two) ;
 

@@ -5,18 +5,21 @@
 #include <string>
 #include <queue>
 
-#include "Term.h"
+#include "../term/Term.h"
 
 class Expression {
 private:
     std::vector<Term*> terms;
+    std::vector<std::string> operators; // TODO implement
+
+    void evaluate(std::queue<std::string> *tokens);
+
+    void simplify();
 
 public:
     Expression(std::string input);
 
-    Expression(std::vector<Term*> termQueue);
-
-    Expression* evaluate(std::queue<std::string> *tokens);
+    Expression(std::vector<Term*> *termQueue);
 
     std::string toString();
 
