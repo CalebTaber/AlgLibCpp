@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "Expression.h"
-#include "../Utils.h"
+#include "../utils/Utils.h"
 #include "../math/Arithmetic.h"
 
 #define vector std::vector
