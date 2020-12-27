@@ -23,7 +23,7 @@ const std::map<char, int> g_precedence = {
         {')', 4}
 };
 
-string preprocess(const string* input) {
+string formatInputExpression(const string* input) {
     string processed;
 
     for (int j = 0, i = 0; i < input->length(); i++) {
@@ -35,7 +35,7 @@ string preprocess(const string* input) {
             continue;
         }
 
-        /** ---------------Processing-------------- **/
+        /** ---------------Formatting-------------- **/
 
         if (c == ' ') { // Eliminate spaces
             processed.append(input->substr(j, (i - j)));
@@ -43,8 +43,7 @@ string preprocess(const string* input) {
             continue;
         }
         else if (c == '-') {
-            // If the '-' is negating a term, not indicating subtraction
-            // TODO this may break parsing when variables are introduced to expressions
+            // If the '-' is negating a term, not indicating subtraction (ex: 4--2 would be formatted as 4+`2)
             if (i == 0 || (!isdigit(input->at(i - 1)) && !isalpha(input->at(i - 1)))) {
                 processed.append(input->substr(j, (i - j)));
                 processed.append("+");
@@ -150,9 +149,9 @@ queue<string> infixToPostfix(vector<string> *tokens) {
 }
 
 Expression::Expression(const string input) {
-    string preprocessed = preprocess(&input);
-    cout << "Processed input: " << preprocessed << endl;
-    vector<string> tokens = tokenizeExpression(&preprocessed);
+    string formatted = formatInputExpression(&input);
+    cout << "Processed input: " << formatted << endl;
+    vector<string> tokens = tokenizeExpression(&formatted);
 
     /*
     for (auto & t : tokens) {
@@ -185,7 +184,10 @@ Expression::~Expression() {
 }
 
 void Expression::simplify() {
-    // TODO
+    // TODO sort terms by variables and add like terms
+    // Make a map of stacks?
+    // Key is variables string (?), value is stack of Terms
+    // Pop and add until only one Term remains, then add each Term back to the terms vector
 }
 
 /**
