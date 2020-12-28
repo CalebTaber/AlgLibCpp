@@ -6,3 +6,5 @@
     (-2+8) Segfaults b/c it is formatted as (+`2+8) [Fixed by adding a check that charAt(i - 1) is not a '(' in formatInputExpression() (Expression.cpp)]
 
     End of day. Next steps are to run test cases and implement pow().
+
+12/28/2020

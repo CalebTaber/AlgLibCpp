@@ -161,12 +161,12 @@ Expression::Expression(const string input) {
     cout << "Processed input: " << formatted << endl;
     vector<string> tokens = tokenizeExpression(&formatted);
 
-
+    /*
     for (auto & t : tokens) {
         cout << t << endl;
     }
-
     cout << "END TOKENS" << endl;
+    */
 
     // Convert from infix to postfix notation
     queue<string> postfixed = infixToPostfix(&tokens);
