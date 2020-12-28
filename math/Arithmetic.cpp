@@ -26,26 +26,32 @@ bool operable(Term* one, Term* two, const string* op) {
     return false;
 }
 
-// TODO rename
 map<char, double> operateOnVarsMaps(Term *one, Term *two, bool add) {
     map<char, double> result = one->copyVariables();
 
-    map<char, double> oneVars = one->getVariables();
     map<char, double> twoVars = two->getVariables();
     for (auto iter : twoVars) {
-        auto oneExponent = oneVars.find(iter.first);
+        auto termOneExp = result.find(iter.first);
 
-        if (oneExponent == oneVars.end()) { // If the variable is not present in the first term's map
+        if (termOneExp == result.end()) { // If the variable is not present in the first term's map
             if (add) result.emplace(iter.first, iter.second);
             else result.emplace(iter.first, -(iter.second));
         }
         else { // If both terms have the same variable (regardless of exponent)
-            if (add) result.emplace(iter.first, oneExponent->second + iter.second);
-            else result.emplace(iter.first, oneExponent->second - iter.second);
+            if (add) termOneExp->second = termOneExp->second + iter.second;
+            else termOneExp->second = termOneExp->second - iter.second;
         }
     }
 
     return result;
+}
+
+map<char, double> addVariables(Term* one, Term* two) {
+    return operateOnVarsMaps(one, two, true);
+}
+
+map<char, double> subtractVariables(Term* one, Term* two) {
+    return operateOnVarsMaps(one, two, false);
 }
 
 /**
@@ -74,7 +80,7 @@ Term* subtract(Term* one, Term* two) {
  * @return The product of the two given Terms
  */
 Term* multiply(Term* one, Term* two) {
-    map<char, double> addedVars = operateOnVarsMaps(one, two, true);
+    map<char, double> addedVars = addVariables(one, two);
     return new Term((one->getCoefficient() * two->getCoefficient()), &addedVars);
 }
 
@@ -84,7 +90,7 @@ Term* multiply(Term* one, Term* two) {
  * @return The quotient of the two given Terms
  */
 Term* divide(Term* one, Term* two) {
-    map<char, double> subtractedVars = operateOnVarsMaps(one, two, false);
+    map<char, double> subtractedVars = subtractVariables(one, two);
     return new Term((one->getCoefficient() / two->getCoefficient()), &subtractedVars);
 }
 

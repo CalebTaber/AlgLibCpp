@@ -10,7 +10,9 @@ bool canAdd(Term* one, Term* two) ;
 
 bool operable(Term* one, Term* two, const std::string* op) ;
 
-std::map<char, double> operateOnVarsMaps(Term *one, Term *two, bool add) ;
+std::map<char, double> addVariables(Term* one, Term* two) ;
+
+std::map<char, double> subtractVariables(Term* one, Term* two) ;
 
 Term *operate(Term *one, Term *two, const std::string *op) ;
 
