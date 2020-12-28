@@ -23,41 +23,49 @@ const std::map<char, int> g_precedence = {
         {')', 4}
 };
 
-string formatInputExpression(const string* input) {
+string removeSpaces(const string* s) {
+    string result;
+
+    for (char c : *s) {
+        if (c != ' ') result += c;
+    }
+
+    return result;
+}
+
+string formatInputExpression(const string* s) {
+    string input = removeSpaces(s);
     string processed;
 
-    for (int j = 0, i = 0; i < input->length(); i++) {
-        char c = input->at(i);
+    for (int j = 0, i = 0; i < input.length(); i++) {
+        char c = input.at(i);
 
         // If at the end of the input string
-        if (atEndOfString(i, input)) {
-            processed.append(input->substr(j, (i - j + 1)));
+        if (atEndOfString(i, &input)) {
+            processed.append(input.substr(j, (i - j + 1)));
             continue;
         }
 
         /** ---------------Formatting-------------- **/
 
-        if (c == ' ') { // Eliminate spaces
-            processed.append(input->substr(j, (i - j)));
-            j = i + 1;
-            continue;
-        }
-        else if (c == '-') {
-            // If the '-' is negating a term, not indicating subtraction (ex: 4--2 would be formatted as 4+`2)
-            if (i == 0 || (!isdigit(input->at(i - 1)) && !isalpha(input->at(i - 1)))) {
-                processed.append(input->substr(j, (i - j)));
-                processed.append("+");
+        if (c == '-') {
+            // If the '-' is negating a term, not indicating subtraction (ex: 4--2 would be formatted as 4-`2)
+            if (i == 0 || (!isdigit(input.at(i - 1)) && !isalpha(input.at(i - 1)))) {
+                processed.append(input.substr(j, (i - j)));
+                if (i > 0 && input.at(i - 1) != '(') {
+                    processed.append("+");
+                }
                 processed.append("`");
                 j = i + 1;
                 continue;
             }
         }
         else if (c == '(') {
-            string b = input->substr(i - 1,1);
+            string b = (i > 0) ? input.substr(i - 1,1) : "";
 
             if (i == 0) continue;
             else if (!isOperator(&b) && b != "`") {
-                processed.append(input->substr(j, (i - j)));
+                processed.append(input.substr(j, (i - j)));
                 processed.append("*");
                 j = i;
                 continue;
@@ -74,25 +82,25 @@ vector<string> tokenizeExpression(const string *expression) {
     // When parsing a term with exponentiated variables, this flag
     // prevents the carets from being parsed independently of the rest
     // of the term
-    bool parsingTerm = false;
+    bool parsingVariables = false;
 
-    for (int i = 1, j = 0; i < expression->length(); i++) {
+    for (int i = 0, j = 0; i < expression->length(); i++) {
         const char c = expression->at(i);
 
-        if (isalpha(c)) parsingTerm = true;
+        if (isalpha(c)) parsingVariables = true;
 
         if (atEndOfString(i, expression)) { // If at end of the expression
             if (isOperator(c)) {
-                if (parsingTerm && c == ')') tokens.push_back(expression->substr(j, (i - j) + 1));
+                if (parsingVariables && c == ')') tokens.push_back(expression->substr(j, (i - j) + 1));
                 else {
-                    tokens.push_back(expression->substr(j, (i - j))); // Add operand
+                    if (i > j) tokens.push_back(expression->substr(j, (i - j))); // Add operand if there is one
                     tokens.push_back(expression->substr(i, 1)); // Add operator that's at the end of the expression
                 }
             }
             else tokens.push_back(expression->substr(j, (expression->length() - j)));
         } else if (isOperator(c)) { // If c is an operator
-            if (parsingTerm && isOperator(c) && expression->at(i-1) == ')') parsingTerm = false;
-            if (!parsingTerm) {
+            if (parsingVariables && isOperator(c) && expression->at(i - 1) == ')') parsingVariables = false;
+            if (!parsingVariables) {
                 if (j != i) tokens.push_back(expression->substr(j, (i - j)));
                 tokens.push_back(expression->substr(i, 1));
                 j = i + 1;
@@ -153,11 +161,12 @@ Expression::Expression(const string input) {
     cout << "Processed input: " << formatted << endl;
     vector<string> tokens = tokenizeExpression(&formatted);
 
-    /*
+
     for (auto & t : tokens) {
         cout << t << endl;
     }
-    */
+
+    cout << "END TOKENS" << endl;
 
     // Convert from infix to postfix notation
     queue<string> postfixed = infixToPostfix(&tokens);

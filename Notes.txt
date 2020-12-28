@@ -1,0 +1,8 @@
+12/27/2020
+    Problem parsing Terms with no explicit coefficient. Ex: x^(23)
+        x^(2) is not parsed as a single token [Fixed by starting i at 0, not 1]
+    -2+8 is converted to +`2+8 [Fixed by adding check for i == 0 in formatInputExpression() (Expression.cpp)]
+    (-2+8) * (6-(-1)) SIGABRTs [Fixed by adding check for i > 0 when parsing string b in formatInputExpression() (Expression.cpp)]
+    (-2+8) Segfaults b/c it is formatted as (+`2+8) [Fixed by adding a check that charAt(i - 1) is not a '(' in formatInputExpression() (Expression.cpp)]
+
+    End of day. Next steps are to run test cases and implement pow().

@@ -4,7 +4,7 @@ Key: unformatted -> formatted
     3x^2 -> 3x^(2)
     5x -> 5x^(1)
 
-2. All variables must have a coefficient
+2. All variables must have an explicit coefficient
     x -> 1x^(1)
 
 3. Distribution into a parenthesized expression must be explicit, using a '*'

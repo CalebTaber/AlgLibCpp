@@ -87,7 +87,7 @@ Term* Term::parseTerm(const string *s) {
             if (parsingVars) {
                 // Add the last variable to the map
                 variables.emplace(s->at(j), std::stod(s->substr(j + 3, (i - (j + 3)))));
-                term = new Term(std::stod(s->substr(0, partition)), &variables);
+                term = (partition == 0) ? new Term(1, &variables) : new Term(std::stod(s->substr(0, partition)), &variables);
             } else term = new Term(std::stod(*s), &variables);
         }
 
