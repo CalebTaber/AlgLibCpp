@@ -6,3 +6,7 @@
     (-2+8) Segfaults b/c it is formatted as (+`2+8) [Fixed by adding a check that charAt(i - 1) is not a '(' in formatInputExpression() (Expression.cpp)]
 
     End of day. Next steps are to run test cases and implement pow().
+
+12/28/2020
+    12:27 -- Taking a break. Pick up working on Expression::addLikeTerms()
+    17:31 -- Need to figure out how to make all operators after Expression::evaluate() to be '+' so that Expression::addLikeTerms() works correctly

@@ -10,16 +10,16 @@
 class Expression {
 private:
     std::vector<Term*> terms;
-    std::vector<std::string> operators; // TODO implement
+    std::vector<std::string> operators;
 
     void evaluate(std::queue<std::string> *tokens);
 
-    void simplify();
+    void addLikeTerms();
 
 public:
     Expression(std::string input);
 
-    Expression(std::vector<Term*> *termQueue);
+    Expression(std::vector<Term*> *input);
 
     ~Expression();
 
