@@ -104,7 +104,7 @@ Term* pow(Term* one, Term* two) {
     return new Term(1337, nullptr);
 }
 
-Term *operate(Term *one, Term *two, const string *op) {
+Term* operate(Term *one, Term *two, const string *op) {
     if (*op == "+") return add(one, two);
     else if (*op == "-") return subtract(one, two);
     else if (*op == "*") return multiply(one, two);

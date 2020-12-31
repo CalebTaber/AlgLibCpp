@@ -4,16 +4,18 @@
 #include "Expression.h"
 #include "../utils/Utils.h"
 #include "../math/Arithmetic.h"
+#include <map>
 
 #define vector std::vector
 #define string std::string
 #define stack std::stack
 #define queue std::queue
+#define map std::map
 
 #define cout std::cout
 #define endl std::endl
 
-const std::map<char, int> g_precedence = {
+const map<char, int> g_precedence = {
         {'+', 1},
         {'-', 1},
         {'*', 2},
@@ -43,18 +45,29 @@ string formatInputExpression(const string* s) {
         // If at the end of the input string
         if (atEndOfString(i, &input)) {
             processed.append(input.substr(j, (i - j + 1)));
-            continue;
+            break;
         }
 
         /** ---------------Formatting-------------- **/
 
         if (c == '-') {
-            // If the '-' is negating a term, not indicating subtraction (ex: 4--2 would be formatted as 4-`2)
-            if (i == 0 || (!isdigit(input.at(i - 1)) && !isalpha(input.at(i - 1)))) {
+            if (i != 0 && input.at(i - 1) == '-') {
+                // If there are two consecutive '-' symbols
+                processed.append(input.substr(j, (i - j - 1)));
+                processed.append("+");
+
+                j = i + 1;
+                continue;
+            }
+            else if (i == 0 || (!isdigit(input.at(i - 1)) && !isalpha(input.at(i - 1)))) {
+                // If the '-' is negating a term, not indicating subtraction (ex: 4--2 -> 4-`2 // 4-2 -> 4+`2)
                 processed.append(input.substr(j, (i - j)));
+
+                // Add a '+' if the '-' is negating a term that does not start the expression or a parenthesized subexpression
                 if (i > 0 && input.at(i - 1) != '(') {
                     processed.append("+");
                 }
+
                 processed.append("`");
                 j = i + 1;
                 continue;
@@ -183,7 +196,7 @@ Expression::Expression(const string input) {
 
 Expression::Expression(vector<Term*> *input) {
     terms = *input;
-    simplify();
+    addLikeTerms();
 }
 
 Expression::~Expression() {
@@ -192,11 +205,46 @@ Expression::~Expression() {
     }
 }
 
-void Expression::simplify() {
-    // TODO sort terms by variables and add like terms
-    // Make a map of stacks?
-    // Key is variables string (?), value is stack of Terms
-    // Pop and add until only one Term remains, then add each Term back to the terms vector
+void Expression::addLikeTerms() {
+    map<string, stack<Term*>> likeTerms;
+
+    // TODO need to make sure all operators are '+'
+
+    for (auto t : terms) {
+        auto findTVars = likeTerms.find(t->varsToString());
+
+        if (findTVars != likeTerms.end()) findTVars->second.push(t);
+        else {
+            stack<Term*> v;
+            v.push(t);
+            likeTerms.emplace(t->varsToString(), v);
+        }
+    }
+
+    for (const auto & vars : likeTerms) {
+        stack<Term*> termStack = vars.second;
+        while (termStack.size() > 1) {
+            // Pop top two terms and add. Then push result. Repeat.
+            Term* one = termStack.top();
+            termStack.pop();
+            Term* two = termStack.top();
+            termStack.pop();
+
+            const string op = "+";
+            Term* result = operate(one, two, &op);
+            termStack.push(result);
+
+            delete one;
+            delete two;
+        }
+
+        likeTerms.find(vars.first)->second = termStack; // Put the new stack back in the map
+    }
+
+    terms.clear();
+    for (const auto & vars : likeTerms) {
+        terms.push_back(vars.second.top());
+    }
 }
 
 /**
@@ -211,7 +259,7 @@ void Expression::evaluate(queue<string> *tokens) {
         string front = tokens->front();
         if (isOperator(&front)) {
             // Pop operands and operate
-            // Note: the operands are popped in reverse order because they're in a stack
+            // Note: the operands are popped in reverse order because they're in postfix order
             Term* two = output.top();
             cout << two->toString() << endl;
             output.pop();
@@ -229,15 +277,17 @@ void Expression::evaluate(queue<string> *tokens) {
             else {
                 output.push(one);
                 output.push(two);
+                operators.push_back(front);
             }
-        } else {
+        }
+        else {
             // If the token is an operand
             string number;
             if (front[0] == '`') front.replace(0, 1, "-"); // Check for a negation symbol
             output.push(Term::parseTerm(&front));
         }
 
-        tokens->pop();
+        tokens->pop(); // Pop operator
     }
 
     while (!output.empty()) {
@@ -245,14 +295,15 @@ void Expression::evaluate(queue<string> *tokens) {
         output.pop();
     }
 
-    simplify();
+    addLikeTerms();
 }
 
 string Expression::toString() {
     string stringified;
 
-    for (auto term : terms) {
-        stringified += term->toString() + " ";
+    for (int i = (int) terms.size() - 1, o = 0; i >= 0; i--, o++) {
+        stringified += terms.at(i)->toString() + " ";
+        if (o < operators.size()) stringified += operators.at(o) + " ";
     }
 
     return stringified;
