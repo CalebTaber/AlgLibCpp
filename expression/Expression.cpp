@@ -51,8 +51,16 @@ string formatInputExpression(const string* s) {
         /** ---------------Formatting-------------- **/
 
         if (c == '-') {
-            // If the '-' is negating a term, not indicating subtraction (ex: 4--2 -> 4-`2 // 4-2 -> 4+`2)
-            if (i == 0 || (!isdigit(input.at(i - 1)) && !isalpha(input.at(i - 1)))) {
+            if (i != 0 && input.at(i - 1) == '-') {
+                // If there are two consecutive '-' symbols
+                processed.append(input.substr(j, (i - j - 1)));
+                processed.append("+");
+
+                j = i + 1;
+                continue;
+            }
+            else if (i == 0 || (!isdigit(input.at(i - 1)) && !isalpha(input.at(i - 1)))) {
+                // If the '-' is negating a term, not indicating subtraction (ex: 4--2 -> 4-`2 // 4-2 -> 4+`2)
                 processed.append(input.substr(j, (i - j)));
 
                 // Add a '+' if the '-' is negating a term that does not start the expression or a parenthesized subexpression
