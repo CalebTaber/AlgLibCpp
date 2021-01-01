@@ -10,7 +10,6 @@
 class Expression {
 private:
     std::vector<Term*> terms;
-    std::vector<std::string> operators;
 
     void evaluate(std::queue<std::string> *tokens);
 

@@ -1,4 +1,5 @@
 #include "Term.h"
+#include "../utils/Utils.h"
 
 #define string std::string
 #define map std::map
@@ -11,7 +12,7 @@ Term::Term(double value, map<char, double> *variables) {
 string Term::toString() {
     string result;
 
-    result += std::to_string(coefficient);
+    result += formatDouble(coefficient, 6);
     result += varsToString();
 
     return result;
@@ -24,7 +25,7 @@ string Term::varsToString() {
     for (auto & variable : variables) {
         varString += variable.first;
         varString += "^(";
-        varString += std::to_string(variable.second);
+        varString += formatDouble(variable.second,  6);
         varString += ")";
     }
 
@@ -73,7 +74,7 @@ Term* Term::parseTerm(const string *s) {
     map<char, double> variables;
 
     bool parsingVars = false;
-    int partition = -1;
+    int partition = 0;
     for (int i = 0, j = 0; i < s->length(); i++) {
         char c = s->at(i);
 
@@ -86,7 +87,10 @@ Term* Term::parseTerm(const string *s) {
 
             if (parsingVars) {
                 // Add the last variable to the map
-                variables.emplace(s->at(j), std::stod(s->substr(j + 3, (i - (j + 3)))));
+                string exp = s->substr(j + 3, (i - (j + 3)));
+                if (exp[0] == '`') variables.emplace(s->at(j), -std::stod(exp.substr(1, exp.length()))); // If negative exponent
+                else variables.emplace(s->at(j), std::stod(exp)); // If positive exponent
+
                 term = (partition == 0) ? new Term(1, &variables) : new Term(std::stod(s->substr(0, partition)), &variables);
             } else term = new Term(std::stod(*s), &variables);
         }
@@ -99,11 +103,18 @@ Term* Term::parseTerm(const string *s) {
             continue;
         }
 
-        // If an additional variable is encountered
+        // If a variable is encountered
         if (parsingVars) {
             // j is the index of the current variable, so add 3 to account for the caret and open parenthesis
             // i is the index of the next variable, so subtract 1 to get the index of the closing parenthesis
-            if (isalpha(c)) variables.emplace(s->at(j), std::stod(s->substr(j + 3, (i - j - 1))));
+            if (isalpha(c)) {
+                string exp = s->substr(j + 3, (i - partition - (j + 3)));
+                if (exp[0] == '`') variables.emplace(s->at(j), -std::stod(exp.substr(1, exp.length()))); // If negative exponent
+                else variables.emplace(s->at(j), std::stod(exp)); // If positive exponent
+
+                j = i;
+            }
+
         }
     }
 

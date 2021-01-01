@@ -12,3 +12,6 @@
     17:31 -- Need to figure out how to make all operators after Expression::evaluate() to be '+' so that Expression::addLikeTerms() works correctly
 
 12/31/2020
+    Expression::formatInputExpression() -- Automatically add '-' symbols to processed, then check end of processed to determine what to do with
+                                            additional '-' symbols (i.e. replace two with '+', replace one with '`')
+    Term::parseTerm() -- Fixed some bugs with parsing coefficients and variables

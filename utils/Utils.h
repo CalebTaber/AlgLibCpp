@@ -11,6 +11,6 @@ bool isOperator(char c) ;
 
 bool isOperator(const std::string *s) ;
 
-
+std::string formatDouble(double d, int maxPrecision) ;
 
 #endif //ALGLIB_UTILS_H
