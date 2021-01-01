@@ -49,29 +49,22 @@ string formatInputExpression(const string* s) {
         }
 
         /** ---------------Formatting-------------- **/
-
         if (c == '-') {
-            if (i != 0 && input.at(i - 1) == '-') {
-                // If there are two consecutive '-' symbols
-                processed.append(input.substr(j, (i - j - 1)));
-                processed.append("+");
+            processed.append(input.substr(j, (i - j)));
+            char pLast = (processed.length() > 0) ? processed.at(processed.length() - 1) : ' ';
 
-                j = i + 1;
-                continue;
-            }
-            else if (i == 0 || (!isdigit(input.at(i - 1)) && !isalpha(input.at(i - 1)))) {
-                // If the '-' is negating a term, not indicating subtraction (ex: 4--2 -> 4-`2 // 4-2 -> 4+`2)
-                processed.append(input.substr(j, (i - j)));
-
-                // Add a '+' if the '-' is negating a term that does not start the expression or a parenthesized subexpression
-                if (i > 0 && input.at(i - 1) != '(') {
-                    processed.append("+");
+            if (pLast == '`') { // If there are two or more negations in a row
+                if(processed.length() > 1) {
+                    if (processed.at(processed.length() - 2) == '+') processed.replace(processed.length() - 2, processed.length(), "+");
+                    else processed[processed.length() - 1] = '+';
                 }
-
-                processed.append("`");
-                j = i + 1;
-                continue;
             }
+            else {
+                if (pLast == ' ' || pLast == '(') processed.append("`"); // pLast is only ' ' when processed is empty
+                else processed.append("+`");
+            }
+
+            j = i + 1;
         }
         else if (c == '(') {
             string b = (i > 0) ? input.substr(i - 1,1) : "";
@@ -208,8 +201,6 @@ Expression::~Expression() {
 void Expression::addLikeTerms() {
     map<string, stack<Term*>> likeTerms;
 
-    // TODO need to make sure all operators are '+'
-
     for (auto t : terms) {
         auto findTVars = likeTerms.find(t->varsToString());
 
@@ -277,7 +268,6 @@ void Expression::evaluate(queue<string> *tokens) {
             else {
                 output.push(one);
                 output.push(two);
-                operators.push_back(front);
             }
         }
         else {
@@ -302,8 +292,8 @@ string Expression::toString() {
     string stringified;
 
     for (int i = (int) terms.size() - 1, o = 0; i >= 0; i--, o++) {
-        stringified += terms.at(i)->toString() + " ";
-        if (o < operators.size()) stringified += operators.at(o) + " ";
+        stringified += terms.at(i)->toString();
+        if (i > 0) stringified += " + ";
     }
 
     return stringified;
