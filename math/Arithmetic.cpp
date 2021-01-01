@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 
 #include "Arithmetic.h"
 
@@ -12,6 +13,11 @@ bool canAdd(Term* one, Term* two) {
     return one->varsEqual(two);
 }
 
+bool canExponentiate(Term* one, Term* two) {
+    if (!two->noVars()) return false;
+    return true;
+}
+
 bool operable(Term* one, Term* two, const string* op) {
     if (one == nullptr || two == nullptr) return false;
 
@@ -22,6 +28,7 @@ bool operable(Term* one, Term* two, const string* op) {
     if (*op == "+" || *op == "-") return canAdd(one, two);
     else if (*op == "*") return true;
     else if (*op == "/") return (two->getCoefficient() != 0);
+    else if (*op == "^") return canExponentiate(one, two);
 
     return false;
 }
@@ -100,8 +107,15 @@ Term* divide(Term* one, Term* two) {
  * @return Term one raised to the value of Term two
  */
 Term* pow(Term* one, Term* two) {
-    // TODO implement pow()
-    return new Term(1337, nullptr);
+    double coefficient = pow(one->getCoefficient(), two->getCoefficient());
+
+    map<char, double> oneVars = one->getVariables();
+    map<char, double> vars;
+    for (auto iter : oneVars) {
+        vars.emplace(iter.first, iter.second * two->getCoefficient());
+    }
+
+    return new Term(coefficient, &vars);
 }
 
 Term* operate(Term *one, Term *two, const string *op) {

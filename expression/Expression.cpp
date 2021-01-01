@@ -60,7 +60,7 @@ string formatInputExpression(const string* s) {
                 }
             }
             else {
-                if (pLast == ' ' || pLast == '(') processed.append("`"); // pLast is only ' ' when processed is empty
+                if (pLast == ' ' || (isOperator(pLast) && pLast != ')')) processed.append("`"); // pLast is only ' ' when processed is empty
                 else processed.append("+`");
             }
 
@@ -74,7 +74,6 @@ string formatInputExpression(const string* s) {
                 processed.append(input.substr(j, (i - j)));
                 processed.append("*");
                 j = i;
-                continue;
             }
         }
     }
