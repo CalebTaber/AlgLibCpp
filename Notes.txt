@@ -20,3 +20,6 @@
         std::to_string() gives only 6 digits of precision, so anything less than 0.000001 will be printed as 0
         Most likely need to create my own version of std::to_string() that gives a variable amount of precision
         But how?
+
+    To work on next: Arithmetic::pow()
+                     Run test cases (set up unit tests?)

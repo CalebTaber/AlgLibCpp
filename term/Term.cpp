@@ -108,7 +108,7 @@ Term* Term::parseTerm(const string *s) {
             // j is the index of the current variable, so add 3 to account for the caret and open parenthesis
             // i is the index of the next variable, so subtract 1 to get the index of the closing parenthesis
             if (isalpha(c)) {
-                string exp = s->substr(j + 3, (i - partition - (j + 3)));
+                string exp = s->substr(j + 3, (i - (j + 3) - 1));
                 if (exp[0] == '`') variables.emplace(s->at(j), -std::stod(exp.substr(1, exp.length()))); // If negative exponent
                 else variables.emplace(s->at(j), std::stod(exp)); // If positive exponent
 
