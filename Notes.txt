@@ -15,3 +15,8 @@
     Expression::formatInputExpression() -- Automatically add '-' symbols to processed, then check end of processed to determine what to do with
                                             additional '-' symbols (i.e. replace two with '+', replace one with '`')
     Term::parseTerm() -- Fixed some bugs with parsing coefficients and variables
+
+    Future problem that will arise:
+        std::to_string() gives only 6 digits of precision, so anything less than 0.000001 will be printed as 0
+        Most likely need to create my own version of std::to_string() that gives a variable amount of precision
+        But how?
