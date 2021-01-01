@@ -12,7 +12,7 @@ Term::Term(double value, map<char, double> *variables) {
 string Term::toString() {
     string result;
 
-    result += formatDouble(coefficient, 6);
+    result += formatDouble(coefficient, MAX_DECIMAL_PRECISION);
     result += varsToString();
 
     return result;
@@ -25,7 +25,7 @@ string Term::varsToString() {
     for (auto & variable : variables) {
         varString += variable.first;
         varString += "^(";
-        varString += formatDouble(variable.second,  6);
+        varString += formatDouble(variable.second,  MAX_DECIMAL_PRECISION);
         varString += ")";
     }
 

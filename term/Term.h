@@ -8,6 +8,7 @@ class Term {
 private:
     double coefficient;
     std::map<char, double> variables;
+    const int MAX_DECIMAL_PRECISION = 6;
 
 public:
     Term(double value, std::map<char, double> *variables);
