@@ -23,3 +23,6 @@
 
     To work on next: Arithmetic::pow()
                      Run test cases (set up unit tests?)
+
+01/01/2021
+    Got prototype of Arithmetic::pow() done

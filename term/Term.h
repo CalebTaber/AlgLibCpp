@@ -17,13 +17,15 @@ public:
 
     std::map<char, double> getVariables() { return variables; }
 
-    void setValue(const double val) { coefficient = val; }
+    void setCoefficient(const double val) { coefficient = val; }
 
     std::string toString();
 
     bool varsEqual(Term* t);
 
     bool equals(Term* t);
+
+    bool noVars() { return variables.empty(); }
 
     std::map<char, double> copyVariables();
 

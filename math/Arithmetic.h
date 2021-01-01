@@ -8,6 +8,8 @@
 
 bool canAdd(Term* one, Term* two) ;
 
+bool canExponentiate(Term* one, Term* two) ;
+
 bool operable(Term* one, Term* two, const std::string* op) ;
 
 std::map<char, double> addVariables(Term* one, Term* two) ;
