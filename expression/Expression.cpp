@@ -17,7 +17,6 @@
 
 const map<char, int> g_precedence = {
         {'+', 1},
-        {'-', 1},
         {'*', 2},
         {'/', 2},
         {'^', 3},
@@ -51,17 +50,17 @@ string formatInputExpression(const string* s) {
         /** ---------------Formatting-------------- **/
         if (c == '-') {
             processed.append(input.substr(j, (i - j)));
-            char pLast = (processed.length() > 0) ? processed.at(processed.length() - 1) : ' ';
+            char pLast = (processed.empty()) ? ' ' : processed[processed.length() - 1];
 
-            if (pLast == '`') { // If there are two or more negations in a row
-                if(processed.length() > 1) {
-                    if (processed.at(processed.length() - 2) == '+') processed.replace(processed.length() - 2, processed.length(), "+");
+            if (pLast == '-') { // If there are two or more negations in a row
+                if (processed.length() > 1) {
+                    if (processed[processed.length() - 2] == '+') processed.replace(processed.length() - 2, processed.length(), "+");
                     else processed[processed.length() - 1] = '+';
                 }
             }
             else {
-                if (pLast == ' ' || (isOperator(pLast) && pLast != ')')) processed.append("`"); // pLast is only ' ' when processed is empty
-                else processed.append("+`");
+                if (pLast == ' ' || (isOperator(pLast) && pLast != ')')) processed.append("-"); // pLast is only ' ' when processed is empty
+                else processed.append("+-");
             }
 
             j = i + 1;
@@ -70,7 +69,7 @@ string formatInputExpression(const string* s) {
             string b = (i > 0) ? input.substr(i - 1,1) : "";
 
             if (i == 0) continue;
-            else if (!isOperator(&b) && b != "`") {
+            else if (!isOperator(&b) && b != "-") {
                 processed.append(input.substr(j, (i - j)));
                 processed.append("*");
                 j = i;
@@ -252,11 +251,11 @@ void Expression::evaluate(queue<string> *tokens) {
             // Pop operands and operate
             // Note: the operands are popped in reverse order because they're in postfix order
             Term* two = output.top();
-            cout << two->toString() << endl;
+            // cout << two->toString() << endl;
             output.pop();
 
             Term* one = output.top();
-            cout << one->toString() << endl;
+            // cout << one->toString() << endl;
             output.pop();
 
             // Push the result
@@ -273,7 +272,6 @@ void Expression::evaluate(queue<string> *tokens) {
         else {
             // If the token is an operand
             string number;
-            if (front[0] == '`') front.replace(0, 1, "-"); // Check for a negation symbol
             output.push(Term::parseTerm(&front));
         }
 

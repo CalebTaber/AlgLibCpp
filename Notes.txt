@@ -26,3 +26,5 @@
 
 01/01/2021
     Got prototype of Arithmetic::pow() done
+
+01/02/2021

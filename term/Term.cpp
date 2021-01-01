@@ -87,9 +87,8 @@ Term* Term::parseTerm(const string *s) {
 
             if (parsingVars) {
                 // Add the last variable to the map
-                string exp = s->substr(j + 3, (i - (j + 3)));
-                if (exp[0] == '`') variables.emplace(s->at(j), -std::stod(exp.substr(1, exp.length()))); // If negative exponent
-                else variables.emplace(s->at(j), std::stod(exp)); // If positive exponent
+                string exponent = s->substr(j + 3, (i - (j + 3)));
+                variables.emplace(s->at(j), std::stod(exponent));
 
                 term = (partition == 0) ? new Term(1, &variables) : new Term(std::stod(s->substr(0, partition)), &variables);
             } else term = new Term(std::stod(*s), &variables);
@@ -108,9 +107,8 @@ Term* Term::parseTerm(const string *s) {
             // j is the index of the current variable, so add 3 to account for the caret and open parenthesis
             // i is the index of the next variable, so subtract 1 to get the index of the closing parenthesis
             if (isalpha(c)) {
-                string exp = s->substr(j + 3, (i - (j + 3) - 1));
-                if (exp[0] == '`') variables.emplace(s->at(j), -std::stod(exp.substr(1, exp.length()))); // If negative exponent
-                else variables.emplace(s->at(j), std::stod(exp)); // If positive exponent
+                string exponent = s->substr(j + 3, (i - (j + 3) - 1));
+                variables.emplace(s->at(j), std::stod(exponent));
 
                 j = i;
             }
