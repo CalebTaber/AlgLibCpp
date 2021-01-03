@@ -139,7 +139,7 @@ queue<string> infixToPostfix(vector<string> *tokens) {
             else if (!operators.empty() && operators.top() == "(") operators.push(s);
             else if (top_precedence < this_precedence) operators.push(s);
             else {
-                while (!operators.empty() && top_precedence > this_precedence) {
+                while (!operators.empty() && top_precedence >= this_precedence) {
                     postfixed.push(operators.top());
                     operators.pop();
 
@@ -162,7 +162,7 @@ queue<string> infixToPostfix(vector<string> *tokens) {
 
 Expression::Expression(const string input) {
     string formatted = formatInputExpression(&input);
-    cout << "Processed input: " << formatted << endl;
+    // cout << "Processed input: " << formatted << endl;
     vector<string> tokens = tokenizeExpression(&formatted);
 
     /*
@@ -175,6 +175,7 @@ Expression::Expression(const string input) {
 
     // Convert from infix to postfix notation
     queue<string> postfixed = infixToPostfix(&tokens);
+
 
     /*
     while (!postfixed.empty()) {
@@ -260,7 +261,9 @@ void Expression::evaluate(queue<string> *tokens) {
 
             // Push the result
             if (operable(one, two, &front)) {
-                output.push(operate(one, two, &front));
+                Term* r = operate(one, two, &front);
+                // cout << r->toString() << endl;
+                output.push(r);
                 delete one;
                 delete two;
             }
