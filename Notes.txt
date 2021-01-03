@@ -26,3 +26,7 @@
 
 01/01/2021
     Got prototype of Arithmetic::pow() done
+
+01/02/2021
+    Fixed pretty major issue with Expression::infixToPostfix(). Had a > instead of >=, making the
+    postfixed expression completely incorrect (in most cases)

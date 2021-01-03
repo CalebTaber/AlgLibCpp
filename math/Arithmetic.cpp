@@ -21,9 +21,11 @@ bool canExponentiate(Term* one, Term* two) {
 bool operable(Term* one, Term* two, const string* op) {
     if (one == nullptr || two == nullptr) return false;
 
+    /*
     cout << one->toString();
     cout << " " << *op;
     cout << " " << two->toString() << endl;
+    */
 
     if (*op == "+" || *op == "-") return canAdd(one, two);
     else if (*op == "*") return true;

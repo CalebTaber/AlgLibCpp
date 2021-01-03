@@ -3,7 +3,7 @@
 
 #include <string>
 
-const std::string g_OPERATORS = "+-*/^()";
+const std::string g_OPERATORS = "+*/^()";
 
 bool atEndOfString(int i, const std::string* s) ;
 
