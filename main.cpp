@@ -56,6 +56,9 @@ void testExpressions() {
     testExpression("8-11*(2-(2^2+11))", "151");
     testExpression("((-2)-((-3)^3-(-2)))*((-3)-(-5))", "46");
     testExpression("10-(-11)*(5-(5^3+11))", "-1431");
+
+    // Basic Algebra
+
 }
 
 int main() {
