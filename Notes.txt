@@ -30,3 +30,18 @@
 01/02/2021
     Fixed pretty major issue with Expression::infixToPostfix(). Had a > instead of >=, making the
     postfixed expression completely incorrect (in most cases)
+
+    Something to note:
+        The expression -3^2 would evaluate to -9 following conventional rules; however,
+        this library parses the -3 as a whole term and not the negation of the expression 3^2.
+        This may cause problems down the road, but I am going to leave it be for now since it
+        can easily be avoided by clarifying the intended expression with a set of parentheses.
+
+        Additionally, 2^3^-2 would conventionally be parsed as 2^(3^-2), but this library parses
+        it as (2^3)^-2. As with above, I think this is more or less a trivial problem and can easily
+        be remedied with a clarifying pair of parentheses. I will most likely add the rule to make
+        automatic inferences in these situations, but it's not a pressing issue.
+
+    Another thought I had was that of floating-point arithmetic error. I don't know of any built-in
+    ways to minimize it, but I think it's definitely worth researching, especially as I look to
+    close out this project soon.

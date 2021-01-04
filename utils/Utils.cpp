@@ -3,15 +3,25 @@
 #define string std::string
 
 bool isOperator(const char c) {
-    return g_OPERATORS.find(c) != string::npos;
+    return g_opsPrecedence.find(c) != g_opsPrecedence.end();
 }
 
 bool isOperator(const string *s) {
     return isOperator(s->at(0));
 }
 
-bool atEndOfString(int i, const string* s) {
+bool endOfString(int i, const string* s) {
     return (i == s->length() - 1);
+}
+
+string removeSpaces(const string* s) {
+    string result;
+
+    for (char c : *s) {
+        if (c != ' ') result += c;
+    }
+
+    return result;
 }
 
 string formatDouble(double d, int maxPrecision) {

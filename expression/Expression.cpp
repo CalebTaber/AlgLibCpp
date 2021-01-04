@@ -15,25 +15,6 @@
 #define cout std::cout
 #define endl std::endl
 
-const map<char, int> g_precedence = {
-        {'+', 1},
-        {'*', 2},
-        {'/', 2},
-        {'^', 3},
-        {'(', 4},
-        {')', 4}
-};
-
-string removeSpaces(const string* s) {
-    string result;
-
-    for (char c : *s) {
-        if (c != ' ') result += c;
-    }
-
-    return result;
-}
-
 string formatInputExpression(const string* s) {
     string input = removeSpaces(s);
     string processed;
@@ -42,12 +23,11 @@ string formatInputExpression(const string* s) {
         char c = input.at(i);
 
         // If at the end of the input string
-        if (atEndOfString(i, &input)) {
+        if (endOfString(i, &input)) {
             processed.append(input.substr(j, (i - j + 1)));
             break;
         }
 
-        /** ---------------Formatting-------------- **/
         if (c == '-') {
             processed.append(input.substr(j, (i - j)));
             char pLast = (processed.empty()) ? ' ' : processed[processed.length() - 1];
@@ -66,13 +46,16 @@ string formatInputExpression(const string* s) {
             j = i + 1;
         }
         else if (c == '(') {
-            string b = (i > 0) ? input.substr(i - 1,1) : "";
+            char b = (i > 0) ? input.at(i - 1) : ' ';
 
             if (i == 0) continue;
-            else if (!isOperator(&b) && b != "-") {
+            else if (!isOperator(b) && b != '-') {
                 processed.append(input.substr(j, (i - j)));
                 processed.append("*");
                 j = i;
+            } else if (b == '-') {
+                processed.append(input.substr(j, i - j));
+                processed.append("1*");
             }
         }
     }
@@ -93,7 +76,7 @@ vector<string> tokenizeExpression(const string *expression) {
 
         if (isalpha(c)) parsingVariables = true;
 
-        if (atEndOfString(i, expression)) { // If at end of the expression
+        if (endOfString(i, expression)) {
             if (isOperator(c)) {
                 if (parsingVariables && c == ')') tokens.push_back(expression->substr(j, (i - j) + 1));
                 else {
@@ -125,8 +108,8 @@ queue<string> infixToPostfix(vector<string> *tokens) {
 
     for (string s : *tokens) {
         if (isOperator(&s)) { // If the token is an operator
-            int top_precedence = (operators.empty()) ? -1 : g_precedence.at(operators.top().at(0));
-            int this_precedence = g_precedence.at(s.at(0));
+            int top_precedence = (operators.empty()) ? -1 : g_opsPrecedence.at(operators.top().at(0));
+            int this_precedence = g_opsPrecedence.at(s.at(0));
 
             if (s == ")") {
                 while (operators.top() != "(") {
@@ -139,11 +122,11 @@ queue<string> infixToPostfix(vector<string> *tokens) {
             else if (!operators.empty() && operators.top() == "(") operators.push(s);
             else if (top_precedence < this_precedence) operators.push(s);
             else {
-                while (!operators.empty() && top_precedence >= this_precedence) {
+                while (!operators.empty() && ((operators.top() != "(" && top_precedence >= this_precedence) || (operators.top() == ")" && top_precedence > this_precedence))) {
                     postfixed.push(operators.top());
                     operators.pop();
 
-                    top_precedence = (operators.empty()) ? -1 : g_precedence.at(operators.top().at(0));
+                    top_precedence = (operators.empty()) ? -1 : g_opsPrecedence.at(operators.top().at(0));
                 }
 
                 operators.push(s);
@@ -162,26 +145,21 @@ queue<string> infixToPostfix(vector<string> *tokens) {
 
 Expression::Expression(const string input) {
     string formatted = formatInputExpression(&input);
-    // cout << "Processed input: " << formatted << endl;
+//    cout << "Processed input: " << formatted << endl;
     vector<string> tokens = tokenizeExpression(&formatted);
 
-    /*
-    for (auto & t : tokens) {
-        cout << t << endl;
-    }
-    cout << "END TOKENS" << endl;
-    */
+//    for (auto & t : tokens) {
+//        cout << t << endl;
+//    }
+//    cout << "END TOKENS" << endl;
 
     // Convert from infix to postfix notation
     queue<string> postfixed = infixToPostfix(&tokens);
 
-
-    /*
-    while (!postfixed.empty()) {
-        cout << postfixed.front() << endl;
-        postfixed.pop();
-    }
-    */
+//    while (!postfixed.empty()) {
+//        cout << postfixed.front() << endl;
+//        postfixed.pop();
+//    }
 
     evaluate(&postfixed);
 }
