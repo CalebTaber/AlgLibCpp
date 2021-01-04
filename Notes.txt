@@ -45,3 +45,10 @@
     Another thought I had was that of floating-point arithmetic error. I don't know of any built-in
     ways to minimize it, but I think it's definitely worth researching, especially as I look to
     close out this project soon.
+
+01/03/2021
+    Did some testing and fixed some small bugs. It looks like everything is working pretty much as
+    intended.
+    Thinking about replacing the expression parsing with a tree-based approach, as opposed to my current
+    list-based approach. I think it could be written cleaner than what I have now, and it seems like
+    it is more logical and understandable. Also, it should be just as efficient, if not more.

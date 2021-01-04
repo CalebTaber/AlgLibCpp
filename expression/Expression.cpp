@@ -78,7 +78,13 @@ vector<string> tokenizeExpression(const string *expression) {
 
         if (endOfString(i, expression)) {
             if (isOperator(c)) {
-                if (parsingVariables && c == ')') tokens.push_back(expression->substr(j, (i - j) + 1));
+                if (parsingVariables && c == ')') {
+                    if (expression->at(i - 1) == ')') {
+                        tokens.push_back(expression->substr(j, (i - j)));
+                        tokens.emplace_back(")");
+                    }
+                    else tokens.push_back(expression->substr(j, (i - j) + 1));
+                }
                 else {
                     if (i > j) tokens.push_back(expression->substr(j, (i - j))); // Add operand if there is one
                     tokens.push_back(expression->substr(i, 1)); // Add operator that's at the end of the expression
@@ -229,7 +235,7 @@ void Expression::evaluate(queue<string> *tokens) {
             // Pop operands and operate
             // Note: the operands are popped in reverse order because they're in postfix order
             Term* two = output.top();
-            // cout << two->toString() << endl;
+//             cout << two->toString() << endl;
             output.pop();
 
             Term* one = output.top();
@@ -239,7 +245,7 @@ void Expression::evaluate(queue<string> *tokens) {
             // Push the result
             if (operable(one, two, &front)) {
                 Term* r = operate(one, two, &front);
-                // cout << r->toString() << endl;
+//                cout << r->toString() << endl;
                 output.push(r);
                 delete one;
                 delete two;

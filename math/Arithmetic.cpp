@@ -21,11 +21,9 @@ bool canExponentiate(Term* one, Term* two) {
 bool operable(Term* one, Term* two, const string* op) {
     if (one == nullptr || two == nullptr) return false;
 
-    /*
-    cout << one->toString();
-    cout << " " << *op;
-    cout << " " << two->toString() << endl;
-    */
+//    cout << one->toString();
+//    cout << " " << *op;
+//    cout << " " << two->toString() << endl;
 
     if (*op == "+" || *op == "-") return canAdd(one, two);
     else if (*op == "*") return true;
@@ -36,19 +34,30 @@ bool operable(Term* one, Term* two, const string* op) {
 }
 
 map<char, double> operateOnVarsMaps(Term *one, Term *two, bool add) {
-    map<char, double> result = one->copyVariables();
+    map<char, double> result;
 
-    map<char, double> twoVars = two->getVariables();
+    map<char, double> oneVars = one->copyVariables();
+    map<char, double> twoVars = two->copyVariables();
+
+    if (oneVars.empty()) return two->copyVariables();
+    if (twoVars.empty()) return one->copyVariables();
+
     for (auto iter : twoVars) {
-        auto termOneExp = result.find(iter.first);
+        auto termOneExp = oneVars.find(iter.first);
 
-        if (termOneExp == result.end()) { // If the variable is not present in the first term's map
-            if (add) result.emplace(iter.first, iter.second);
-            else result.emplace(iter.first, -(iter.second));
+        if (termOneExp == oneVars.end()) { // If the variable is not present in the first term's map
+            if (iter.second != 0) {
+                if (add) result.emplace(iter.first, iter.second);
+                else result.emplace(iter.first, -(iter.second));
+            }
         }
         else { // If both terms have the same variable (regardless of exponent)
-            if (add) termOneExp->second = termOneExp->second + iter.second;
-            else termOneExp->second = termOneExp->second - iter.second;
+            if (add) {
+                if (termOneExp->second + iter.second != 0) result.emplace(iter.first, termOneExp->second + iter.second);
+            }
+            else {
+                if (termOneExp->second - iter.second != 0) result.emplace(iter.first, termOneExp->second - iter.second);
+            }
         }
     }
 
