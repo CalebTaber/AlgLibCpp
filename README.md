@@ -4,10 +4,10 @@ An advanced math library, written in C++
 ## Goal
 The goal of this project is to create a well-written and understandable library that is capable of performing complex algebraic and trigonometric calculations. Basically, I hope to implement functionality for all math up to, but not including, calculus.
 
-## Current Status (As of 12/25/2020)
-I have just finished a major reorganization of my code to position myself for more complex feature implementations.  
-The library can perform basic arithmetic with these operators: +, -, \*, /, (, ), ^  
-It also has limited functionality with variables and basic algebra. The finer details are in the process of being worked out.
+## Current Status (As of 01/03/2021)
+All basic arithmetic (+, -, \*, /, ^), including parentheses, is supported.  
+All above operations are supported with terms that have exponents (i.e. 3x^(2) / 5x^(1) and the like is possible)  
+I just finished testing with a bunch of cases, and it seems that my shunting yard implementation is solid, so I will be moving on to equation and inequality functionality soon, as well as some trigonometry.
 
 ## General Organization
 With this project, I'm taking an object-oriented approach to math. The most basic element is a `Term`. Then comes the `Expression`, which is a vector of `Term` objects. Then would come the `Equation` and `System` (of equations) units, which are successive compositions of their predecessors. This structure, I believe, is the most efficient for implementing more and more complex mathematical concepts.  
