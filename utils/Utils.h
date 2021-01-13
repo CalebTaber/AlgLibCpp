@@ -4,14 +4,7 @@
 #include <string>
 #include <map>
 
-const std::map<char, int> g_opsPrecedence = {
-        {'+', 1},
-        {'*', 2},
-        {'/', 2},
-        {'^', 3},
-        {'(', 4},
-        {')', 4}
-};
+int opPrecedence(char op) ;
 
 bool endOfString(int i, const std::string* s) ;
 

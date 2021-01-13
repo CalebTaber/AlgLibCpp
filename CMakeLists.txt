@@ -3,4 +3,4 @@ project(AlgLib)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(AlgLib main.cpp term/Term.cpp term/Term.h expression/Expression.cpp expression/Expression.h math/Arithmetic.cpp math/Arithmetic.h utils/Utils.cpp utils/Utils.h)
+add_executable(AlgLib main.cpp term/Term.cpp term/Term.h expression/Expression.cpp expression/Expression.h math/Arithmetic.cpp math/Arithmetic.h utils/Utils.cpp utils/Utils.h equation/Equation.cpp equation/Equation.h inequality/Inequality.cpp inequality/Inequality.h)

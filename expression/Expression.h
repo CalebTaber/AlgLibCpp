@@ -13,14 +13,12 @@ private:
 
     void evaluate(std::queue<std::string> *tokens);
 
-    void addLikeTerms();
-
 public:
     Expression(std::string input);
 
-    Expression(std::vector<Term*> *input);
-
     ~Expression();
+
+    void addLikeTerms();
 
     std::string toString();
 

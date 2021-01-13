@@ -114,8 +114,8 @@ queue<string> infixToPostfix(vector<string> *tokens) {
 
     for (string s : *tokens) {
         if (isOperator(&s)) { // If the token is an operator
-            int top_precedence = (operators.empty()) ? -1 : g_opsPrecedence.at(operators.top().at(0));
-            int this_precedence = g_opsPrecedence.at(s.at(0));
+            int top_precedence = (operators.empty()) ? -1 : opPrecedence(operators.top().at(0));
+            int this_precedence = operators.top().at(s.at(0));
 
             if (s == ")") {
                 while (operators.top() != "(") {
@@ -132,7 +132,7 @@ queue<string> infixToPostfix(vector<string> *tokens) {
                     postfixed.push(operators.top());
                     operators.pop();
 
-                    top_precedence = (operators.empty()) ? -1 : g_opsPrecedence.at(operators.top().at(0));
+                    top_precedence = (operators.empty()) ? -1 : opPrecedence(operators.top().at(0));
                 }
 
                 operators.push(s);
@@ -170,54 +170,9 @@ Expression::Expression(const string input) {
     evaluate(&postfixed);
 }
 
-Expression::Expression(vector<Term*> *input) {
-    terms = *input;
-    addLikeTerms();
-}
-
 Expression::~Expression() {
     for (auto t : terms) {
         delete t;
-    }
-}
-
-void Expression::addLikeTerms() {
-    map<string, stack<Term*>> likeTerms;
-
-    for (auto t : terms) {
-        auto findTVars = likeTerms.find(t->varsToString());
-
-        if (findTVars != likeTerms.end()) findTVars->second.push(t);
-        else {
-            stack<Term*> v;
-            v.push(t);
-            likeTerms.emplace(t->varsToString(), v);
-        }
-    }
-
-    for (const auto & vars : likeTerms) {
-        stack<Term*> termStack = vars.second;
-        while (termStack.size() > 1) {
-            // Pop top two terms and add. Then push result. Repeat.
-            Term* one = termStack.top();
-            termStack.pop();
-            Term* two = termStack.top();
-            termStack.pop();
-
-            const string op = "+";
-            Term* result = operate(one, two, &op);
-            termStack.push(result);
-
-            delete one;
-            delete two;
-        }
-
-        likeTerms.find(vars.first)->second = termStack; // Put the new stack back in the map
-    }
-
-    terms.clear();
-    for (const auto & vars : likeTerms) {
-        terms.push_back(vars.second.top());
     }
 }
 
@@ -270,6 +225,46 @@ void Expression::evaluate(queue<string> *tokens) {
     }
 
     addLikeTerms();
+}
+
+void Expression::addLikeTerms() {
+    map<string, stack<Term*>> likeTerms;
+
+    for (auto t : terms) {
+        auto findTVars = likeTerms.find(t->varsToString());
+
+        if (findTVars != likeTerms.end()) findTVars->second.push(t);
+        else {
+            stack<Term*> v;
+            v.push(t);
+            likeTerms.emplace(t->varsToString(), v);
+        }
+    }
+
+    for (const auto & vars : likeTerms) {
+        stack<Term*> termStack = vars.second;
+        while (termStack.size() > 1) {
+            // Pop top two terms and add. Then push result. Repeat.
+            Term* one = termStack.top();
+            termStack.pop();
+            Term* two = termStack.top();
+            termStack.pop();
+
+            const string op = "+";
+            Term* result = operate(one, two, &op);
+            termStack.push(result);
+
+            delete one;
+            delete two;
+        }
+
+        likeTerms.find(vars.first)->second = termStack; // Put the new stack back in the map
+    }
+
+    terms.clear();
+    for (const auto & vars : likeTerms) {
+        terms.push_back(vars.second.top());
+    }
 }
 
 string Expression::toString() {

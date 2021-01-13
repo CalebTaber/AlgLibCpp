@@ -73,9 +73,8 @@ void testExpressions() {
 }
 
 int main() {
-    testExpressions();
+    // testExpressions();
 
-    /*
     cout << "Enter an expression" << endl;
     string expression;
     std::getline(cin, expression);
@@ -86,7 +85,6 @@ int main() {
 
     result->print();
     delete result;
-    */
 
     return 0;
 }

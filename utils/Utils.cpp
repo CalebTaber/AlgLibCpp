@@ -2,6 +2,15 @@
 
 #define string std::string
 
+int opPrecedence(char op) {
+    if (op == '+') return 1;
+    if (op == '*' || op == '/') return 2;
+    if (op == '^') return 3;
+    if (op == '(' || op == ')') return 4;
+
+    return -1;
+}
+
 bool isOperator(const char c) {
     return g_opsPrecedence.find(c) != g_opsPrecedence.end();
 }
