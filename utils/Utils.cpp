@@ -12,7 +12,7 @@ int opPrecedence(char op) {
 }
 
 bool isOperator(const char c) {
-    return g_opsPrecedence.find(c) != g_opsPrecedence.end();
+    return opPrecedence(c) != -1;
 }
 
 bool isOperator(const string *s) {

@@ -4,25 +4,35 @@
 #include <vector>
 #include <string>
 #include <queue>
+#include <stack>
+#include <iostream>
 
 #include "../term/Term.h"
 
 class Expression {
 private:
-    std::vector<Term*> terms;
+    std::map<std::string, std::stack<Term*>> sortedTerms;
 
     void evaluate(std::queue<std::string> *tokens);
+
+    void simplify();
+
+    void insertAndSortTerm(Term* t);
 
 public:
     Expression(std::string input);
 
     ~Expression();
 
-    void addLikeTerms();
+    void insertTerms(std::vector<Term*>* terms);
+
+    void multiply(Expression* e);
+
+    std::map<std::string, std::stack<Term*>> getTerms() { return sortedTerms; } ;
 
     std::string toString();
 
-    void print();
+    void print() { std::cout << toString() << std::endl; } ;
 
 };
 

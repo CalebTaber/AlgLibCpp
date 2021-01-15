@@ -9,7 +9,7 @@
 
 12/28/2020
     12:27 -- Taking a break. Pick up working on Expression::addLikeTerms()
-    17:31 -- Need to figure out how to make all operators after Expression::evaluate() to be '+' so that Expression::addLikeTerms() works correctly
+    17:31 -- Need to figure out how to make all operators after Expression::evaluate() to be '+' so that Expression::simplify() works correctly
 
 12/31/2020
     Expression::formatInputExpression() -- Automatically add '-' symbols to processed, then check end of processed to determine what to do with
@@ -39,7 +39,7 @@
 
         Additionally, 2^3^-2 would conventionally be parsed as 2^(3^-2), but this library parses
         it as (2^3)^-2. As with above, I think this is more or less a trivial problem and can easily
-        be remedied with a clarifying pair of parentheses. I will most likely add the rule to make
+        be remedied with a clarifying pair of parentheses. I will most likely addTerms the rule to make
         automatic inferences in these situations, but it's not a pressing issue.
 
     Another thought I had was that of floating-point arithmetic error. I don't know of any built-in
@@ -52,3 +52,25 @@
     Thinking about replacing the expression parsing with a tree-based approach, as opposed to my current
     list-based approach. I think it could be written cleaner than what I have now, and it seems like
     it is more logical and understandable. Also, it should be just as efficient, if not more.
+
+01/13/2021
+    Working on an Equation implementation.
+    Reworked the way Terms are stored and accessed by Expressions.
+        They are now stored sorted by their variables, and any Term added to the Expression
+        is automatically sorted and inserted.
+
+01/14/2021
+    Working on a prototype of Equation::solveFor()
+    Note:
+        Could possibly get rid of isOperator(const string* s) in Utils.cpp. No operator is represented as more
+        than one character, and I could probably use single characters to represent any future operators.
+        Not going to change it yet, but it may be worthwhile to do in the future to condense and simplify the codebase.
+    Note:
+        An Expression's collection of Terms is intentionally kept as a map of stacks, even after simplification
+        when there is only one Term per stack. In that state, iterating through them is the same as iterating through
+        a vector, so there would be no gain in converting the map to a vector. Keeping the map after simplification
+        also aids in adding new Terms to the Expression. This way, a whole vector of Terms can be added and sorted then
+        simplified. The stacks are already allocated, so there would be no overhead from creating them again if
+        converting from a vector to a sorted map.
+        This is just a stream-of-consciousness rationale for why I decided to keep the Terms in the map instead of a
+        vector, for when I inevitably come back to it and wonder why.

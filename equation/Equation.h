@@ -2,6 +2,7 @@
 #define ALGLIB_EQUATION_H
 
 #include <string>
+#include <iostream>
 
 #include "../expression/Expression.h"
 
@@ -11,7 +12,7 @@ private:
     Expression* right;
 
 public:
-    Equation(std::string eq) ;
+    Equation(std::string input) ;
 
     ~Equation() ;
 
@@ -19,7 +20,7 @@ public:
 
     void solveFor(char variable) ;
 
-    void print() ;
+    void print() { std::cout << toString() << std::endl; };
 };
 
 

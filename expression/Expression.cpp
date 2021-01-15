@@ -115,7 +115,7 @@ queue<string> infixToPostfix(vector<string> *tokens) {
     for (string s : *tokens) {
         if (isOperator(&s)) { // If the token is an operator
             int top_precedence = (operators.empty()) ? -1 : opPrecedence(operators.top().at(0));
-            int this_precedence = operators.top().at(s.at(0));
+            int this_precedence = opPrecedence(s.at(0));
 
             if (s == ")") {
                 while (operators.top() != "(") {
@@ -171,8 +171,14 @@ Expression::Expression(const string input) {
 }
 
 Expression::~Expression() {
-    for (auto t : terms) {
-        delete t;
+    for (auto s : sortedTerms) {
+        stack<Term*> terms;
+        while (!terms.empty()) {
+            Term* tmp = terms.top();
+            terms.pop();
+
+            delete tmp;
+        }
     }
 }
 
@@ -183,6 +189,8 @@ Expression::~Expression() {
  */
 void Expression::evaluate(queue<string> *tokens) {
     stack<Term*> output;
+
+    vector<Term*> terms;
 
     while (!tokens->empty()) {
         string front = tokens->front();
@@ -224,27 +232,41 @@ void Expression::evaluate(queue<string> *tokens) {
         output.pop();
     }
 
-    addLikeTerms();
+    insertTerms(&terms);
 }
 
-void Expression::addLikeTerms() {
-    map<string, stack<Term*>> likeTerms;
+/**
+ * Inserts the given Term into the sortedTerms map according to its variable composition
+ */
+void Expression::insertAndSortTerm(Term* t) {
+    auto findTVars = sortedTerms.find(t->varsToString());
 
-    for (auto t : terms) {
-        auto findTVars = likeTerms.find(t->varsToString());
-
-        if (findTVars != likeTerms.end()) findTVars->second.push(t);
-        else {
-            stack<Term*> v;
-            v.push(t);
-            likeTerms.emplace(t->varsToString(), v);
-        }
+    if (findTVars != sortedTerms.end()) findTVars->second.push(t);
+    else {
+        stack<Term*> v;
+        v.push(t);
+        sortedTerms.emplace(t->varsToString(), v);
     }
+}
 
-    for (const auto & vars : likeTerms) {
+/**
+ * Inserts the given terms into the sorted map, then adds the like terms together
+ */
+void Expression::insertTerms(vector<Term*>* terms) {
+    for (auto t : *terms) {
+        insertAndSortTerm(t);
+    }
+    simplify();
+}
+
+/**
+ * Iterates through the map of sorted Terms and adds the like Terms
+ */
+void Expression::simplify() {
+    for (const auto & vars : sortedTerms) {
         stack<Term*> termStack = vars.second;
         while (termStack.size() > 1) {
-            // Pop top two terms and add. Then push result. Repeat.
+            // Pop top two terms and add. Then push result. Repeat until only one term remains
             Term* one = termStack.top();
             termStack.pop();
             Term* two = termStack.top();
@@ -258,26 +280,38 @@ void Expression::addLikeTerms() {
             delete two;
         }
 
-        likeTerms.find(vars.first)->second = termStack; // Put the new stack back in the map
+        sortedTerms.find(vars.first)->second = termStack; // Put the new stack back in the map
+    }
+}
+
+/**
+ * Multiply this Expression by the given multiplicand Expression
+ */
+void Expression::multiply(Expression* multiplicand) {
+    simplify();
+    vector<Term*> products;
+
+    // There will only be one Term in each stack since simplify() is called at the start of the function
+    for (const auto& s : sortedTerms) {
+        for (const auto& s2 : multiplicand->getTerms()) {
+            products.push_back(multiplyTerms(s.second.top(), s2.second.top()));
+        }
     }
 
-    terms.clear();
-    for (const auto & vars : likeTerms) {
-        terms.push_back(vars.second.top());
-    }
+    sortedTerms.clear();
+    insertTerms(&products);
 }
 
 string Expression::toString() {
     string stringified;
 
-    for (int i = (int) terms.size() - 1, o = 0; i >= 0; i--, o++) {
-        stringified += terms.at(i)->toString();
-        if (i > 0) stringified += " + ";
+    for (auto iter = --sortedTerms.end(); iter != sortedTerms.begin(); iter--) {
+        stringified.append(iter->second.top()->toString());
+        stringified.append("+");
     }
 
-    return stringified;
-}
+    // Add final term
+    stringified.append(sortedTerms.begin()->second.top()->toString());
 
-void Expression::print() {
-    cout << toString() << endl;
+    return stringified;
 }

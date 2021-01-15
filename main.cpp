@@ -75,6 +75,9 @@ void testExpressions() {
 int main() {
     // testExpressions();
 
+    // TODO need function to determine what the input is
+    // i.e. Expression, Equation, Inequality, System, ...
+
     cout << "Enter an expression" << endl;
     string expression;
     std::getline(cin, expression);

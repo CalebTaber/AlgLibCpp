@@ -5,6 +5,7 @@
 #include <map>
 
 #include "../term/Term.h"
+#include "../expression/Expression.h"
 
 bool canAdd(Term* one, Term* two) ;
 
@@ -18,13 +19,11 @@ std::map<char, double> subtractVariables(Term* one, Term* two) ;
 
 Term *operate(Term *one, Term *two, const std::string *op) ;
 
-Term* add(Term* one, Term* two) ;
+Term* addTerms(Term* one, Term* two) ;
 
-Term* subtract(Term* one, Term* two) ;
+Term* multiplyTerms(Term* one, Term* two) ;
 
-Term* multiply(Term* one, Term* two) ;
-
-Term* divide(Term* one, Term* two) ;
+Term* divideTerms(Term* one, Term* two) ;
 
 Term* pow(Term* one, Term* two) ;
 
