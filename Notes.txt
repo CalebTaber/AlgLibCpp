@@ -39,7 +39,7 @@
 
         Additionally, 2^3^-2 would conventionally be parsed as 2^(3^-2), but this library parses
         it as (2^3)^-2. As with above, I think this is more or less a trivial problem and can easily
-        be remedied with a clarifying pair of parentheses. I will most likely addTerms the rule to make
+        be remedied with a clarifying pair of parentheses. I will most likely add the rule to make
         automatic inferences in these situations, but it's not a pressing issue.
 
     Another thought I had was that of floating-point arithmetic error. I don't know of any built-in
@@ -74,3 +74,12 @@
         converting from a vector to a sorted map.
         This is just a stream-of-consciousness rationale for why I decided to keep the Terms in the map instead of a
         vector, for when I inevitably come back to it and wonder why.
+
+01/15/2021
+    Working on a prototype of Equation::solveFor()
+    Just discovered the immense complexity of root-finding algorithms. Going to jump into it soon enough, but I think starting
+    with a prototype that solves linear equations in one variable would be a good starting point.
+
+01/16/2021
+    Working on a prototype of Equation::solveFor()
+    3x^(1) + 5 = 12 * 0.25x^(1) SIGSEVs

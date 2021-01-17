@@ -11,20 +11,26 @@
 
 class Expression {
 private:
+    bool simplified = false;
+
     std::map<std::string, std::stack<Term*>> sortedTerms;
 
     void evaluate(std::queue<std::string> *tokens);
 
-    void simplify();
-
-    void insertAndSortTerm(Term* t);
-
 public:
     Expression(std::string input);
 
+    Expression() { } ;
+
     ~Expression();
 
+    void insertTerm(Term* t);
+
     void insertTerms(std::vector<Term*>* terms);
+
+    void removeTerms(const std::string variables);
+
+    void simplify();
 
     void multiply(Expression* e);
 

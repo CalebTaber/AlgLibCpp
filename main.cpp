@@ -2,6 +2,7 @@
 #include <string>
 
 #include "expression/Expression.h"
+#include "equation/Equation.h"
 
 #define string std::string
 
@@ -9,6 +10,14 @@
 #define cin std::cin
 #define endl std::endl
 
+// TODO
+/*
+    Write function that translates conventional mathematical notation into
+    expressions that this library understands
+    Ex: 3x + 8 - 2^4 -> 3x^(1) + 8 - (2^4)
+    Would replace Expression::formatInputExpression() and would work for all
+    mathematical units, not just Expressions
+*/
 void testExpression(string input, string expectedResult) {
     auto e = new Expression(input);
 
@@ -78,13 +87,14 @@ int main() {
     // TODO need function to determine what the input is
     // i.e. Expression, Equation, Inequality, System, ...
 
-    cout << "Enter an expression" << endl;
-    string expression;
-    std::getline(cin, expression);
-    cout << expression << endl;
+    cout << "Enter an input" << endl;
+    string input;
+    std::getline(cin, input);
+    cout << input << endl;
 
     // Evaluate and get result
-    auto result = new Expression(expression);
+    auto result = new Equation(input);
+    result->solveFor('x');
 
     result->print();
     delete result;

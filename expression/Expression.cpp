@@ -171,8 +171,10 @@ Expression::Expression(const string input) {
 }
 
 Expression::~Expression() {
-    for (auto s : sortedTerms) {
-        stack<Term*> terms;
+    simplify();
+
+    for (auto & iter : sortedTerms) {
+        stack<Term*> terms = iter.second;
         while (!terms.empty()) {
             Term* tmp = terms.top();
             terms.pop();
@@ -238,7 +240,7 @@ void Expression::evaluate(queue<string> *tokens) {
 /**
  * Inserts the given Term into the sortedTerms map according to its variable composition
  */
-void Expression::insertAndSortTerm(Term* t) {
+void Expression::insertTerm(Term* t) {
     auto findTVars = sortedTerms.find(t->varsToString());
 
     if (findTVars != sortedTerms.end()) findTVars->second.push(t);
@@ -247,6 +249,8 @@ void Expression::insertAndSortTerm(Term* t) {
         v.push(t);
         sortedTerms.emplace(t->varsToString(), v);
     }
+
+    simplified = false;
 }
 
 /**
@@ -254,15 +258,21 @@ void Expression::insertAndSortTerm(Term* t) {
  */
 void Expression::insertTerms(vector<Term*>* terms) {
     for (auto t : *terms) {
-        insertAndSortTerm(t);
+        insertTerm(t);
     }
     simplify();
+}
+
+void Expression::removeTerms(const string variables) {
+    sortedTerms.erase(variables);
 }
 
 /**
  * Iterates through the map of sorted Terms and adds the like Terms
  */
 void Expression::simplify() {
+    if (simplified) return;
+
     for (const auto & vars : sortedTerms) {
         stack<Term*> termStack = vars.second;
         while (termStack.size() > 1) {
@@ -280,8 +290,11 @@ void Expression::simplify() {
             delete two;
         }
 
-        sortedTerms.find(vars.first)->second = termStack; // Put the new stack back in the map
+        if (termStack.top()->getCoefficient() != 0) sortedTerms.find(vars.first)->second = termStack; // Put the new stack back in the map if not equal to zero
+        else delete termStack.top(); // Delete any Terms equal to zero
     }
+
+    simplified = true;
 }
 
 /**
@@ -292,9 +305,9 @@ void Expression::multiply(Expression* multiplicand) {
     vector<Term*> products;
 
     // There will only be one Term in each stack since simplify() is called at the start of the function
-    for (const auto& s : sortedTerms) {
-        for (const auto& s2 : multiplicand->getTerms()) {
-            products.push_back(multiplyTerms(s.second.top(), s2.second.top()));
+    for (const auto& thisIter : sortedTerms) {
+        for (const auto& thatIter : multiplicand->getTerms()) {
+            products.push_back(multiplyTerms(thisIter.second.top(), thatIter.second.top()));
         }
     }
 
