@@ -7,6 +7,7 @@ The goal of this project is to create a well-written and understandable library 
 ## Current Status  
 01/16/2021  
 Single-variable linear equations can now be automatically solved.  
+  
 01/03/2021  
 All basic arithmetic (+, -, \*, /, ^), including parentheses, is supported.  
 All above operations are supported with terms that have exponents (i.e. 3x^(2) / 5x^(1) and the like is possible)  
