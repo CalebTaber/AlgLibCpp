@@ -4,7 +4,10 @@ An advanced math library, written in C++. (CAS = Computer Algebra System)
 ## Goal
 The goal of this project is to create a well-written and understandable library that is capable of performing complex algebraic and trigonometric calculations. Basically, I hope to implement functionality for all math up to, but not including, calculus.
 
-## Current Status (As of 01/03/2021)
+## Current Status  
+01/16/2021  
+Single-variable linear equations can now be automatically solved.  
+01/03/2021  
 All basic arithmetic (+, -, \*, /, ^), including parentheses, is supported.  
 All above operations are supported with terms that have exponents (i.e. 3x^(2) / 5x^(1) and the like is possible)  
 I just finished testing with a bunch of cases, and it seems that my shunting yard implementation is solid, so I will be moving on to equation and inequality functionality soon, as well as some trigonometry.
