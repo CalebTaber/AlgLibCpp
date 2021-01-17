@@ -1,5 +1,5 @@
-# AlgebraLibraryCpp
-An advanced math library, written in C++
+# CAS
+An advanced math library, written in C++. (CAS = Computer Algebra System)
 
 ## Goal
 The goal of this project is to create a well-written and understandable library that is capable of performing complex algebraic and trigonometric calculations. Basically, I hope to implement functionality for all math up to, but not including, calculus.
